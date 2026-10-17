@@ -1,0 +1,14 @@
+.history {
+  display: flex;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+}
+
+.history-placeholder {
+  color: #8c8275;
+  font-size: 1.05rem;
+  text-align: center;
+  max-width: 420px;
+  line-height: 1.5;
+  margin: 0;
+}
