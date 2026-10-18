@@ -16,6 +16,7 @@ export default function Tabs({ leaderboardRows }: Props): React.MixedElement {
 
   return (
     <div className="tabs">
+      <h1 className="tabs-title">Haunted Hunt</h1>
       <div className="tabs-bar" role="tablist">
         <button
           role="tab"

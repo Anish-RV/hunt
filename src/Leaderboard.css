@@ -1,22 +1,179 @@
-.leaderboard-table-wrap {
+.leaderboard {
   width: 100%;
   overflow-x: auto;
-  padding: 1rem;
-  box-sizing: border-box;
 }
 
 .leaderboard-table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 0.98rem;
+  color: #2b2420;
 }
 
 .leaderboard-table th,
 .leaderboard-table td {
   text-align: left;
-  padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid #eee;
+  padding: 0.8rem 1rem;
 }
 
 .leaderboard-table th {
+  font-size: 0.75rem;
   font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8c8275;
+  border-bottom: 2px solid #ddd6c4;
+}
+
+.leaderboard-table tbody tr {
+  border-bottom: 1px solid #efe9d8;
+  transition: background-color 0.15s ease;
+}
+
+.leaderboard-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.leaderboard-table tbody tr:nth-child(even) {
+  background-color: #faf6ec;
+}
+
+.leaderboard-table tbody tr:hover {
+  background-color: #f3ecd9;
+}
+
+/* Numbers line up on the right */
+.leaderboard-table .leaderboard-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.leaderboard-table .leaderboard-rank {
+  width: 1%;
+  white-space: nowrap;
+  text-align: center;
+  color: #8c8275;
+  font-variant-numeric: tabular-nums;
+}
+
+.leaderboard-table td.leaderboard-num,
+.leaderboard-table td.leaderboard-title {
+  white-space: nowrap;
+}
+
+.leaderboard-table th {
+  vertical-align: bottom;
+}
+
+/* Leader highlight */
+.leaderboard-table tbody tr.leaderboard-leader {
+  background-color: #fbf1d9;
+}
+
+.leaderboard-table tbody tr.leaderboard-leader:hover {
+  background-color: #f8e9c4;
+}
+
+.leaderboard-leader td {
+  font-weight: 600;
+}
+
+.leaderboard-leader td.leaderboard-rank {
+  color: #c08a28;
+}
+
+.leaderboard-leader td:first-child {
+  box-shadow: inset 4px 0 0 #c08a28;
+}
+
+.leaderboard-crown {
+  margin-right: 0.4rem;
+}
+
+.leaderboard-empty {
+  color: #8c8275;
+  text-align: center;
+  margin: 2rem 0;
+}
+
+/* Phones: each row becomes a small stacked card */
+@media (max-width: 560px) {
+  .leaderboard-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .leaderboard-table,
+  .leaderboard-table tbody,
+  .leaderboard-table tr,
+  .leaderboard-table td {
+    display: block;
+  }
+
+  .leaderboard-table tbody tr,
+  .leaderboard-table tbody tr:last-child {
+    border: 1px solid #ece4d0;
+    border-radius: 10px;
+    margin-bottom: 0.75rem;
+    padding: 0.4rem 0;
+    text-align: left;
+  }
+
+  .leaderboard-table tbody tr:nth-child(even) {
+    background-color: transparent;
+  }
+
+  .leaderboard-table tbody tr.leaderboard-leader {
+    border: 2px solid #c08a28;
+  }
+
+  .leaderboard-table td,
+  .leaderboard-table td.leaderboard-num {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.35rem 0.9rem;
+    text-align: right;
+  }
+
+  .leaderboard-table td::before {
+    content: attr(data-label);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #8c8275;
+    text-align: left;
+  }
+
+  /* The name column acts as the card title, with the rank beside it */
+  .leaderboard-table td.leaderboard-title,
+  .leaderboard-table td.leaderboard-rank {
+    display: inline-block;
+    width: auto;
+    text-align: left;
+    font-weight: 600;
+    font-size: 1.05rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .leaderboard-table td.leaderboard-rank {
+    padding-right: 0;
+  }
+
+  .leaderboard-table td.leaderboard-rank::after {
+    content: '.';
+  }
+
+  .leaderboard-table td.leaderboard-title::before,
+  .leaderboard-table td.leaderboard-rank::before {
+    display: none;
+  }
+
+  .leaderboard-leader td:first-child {
+    box-shadow: none;
+  }
 }

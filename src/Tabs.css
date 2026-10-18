@@ -1,49 +1,87 @@
 .tabs {
-  max-width: 720px;
+  max-width: 860px;
   margin: 0 auto;
-  padding: 2rem 1rem 3rem;
+  padding: 1.5rem 1rem 3rem;
 }
 
+.tabs-title {
+  font-family: KirangHaerang;
+  font-weight: normal;
+  font-size: calc(2.5rem + 3vmin);
+  color: #2b2420;
+  margin: 0 0 1rem;
+}
+
+/* Folder tabs that sit on top of the card */
 .tabs-bar {
   display: flex;
-  justify-content: center;
-  gap: 2.5rem;
-  border-bottom: 1px solid #ddd6c4;
-  margin-bottom: 2rem;
-  padding-top: 0.5rem;
+  justify-content: flex-start;
+  gap: 0.35rem;
+  padding: 0 1.25rem;
+  position: relative;
+  z-index: 1;
 }
 
 .tab {
-  background: none;
-  border: none;
+  background: #efe9d8;
+  border: 1px solid #ddd6c4;
+  border-bottom: none;
+  border-radius: 12px 12px 0 0;
   cursor: pointer;
   font-family: KirangHaerang;
-  font-size: 1.3rem;
-  color: #a39c89;
-  padding: 0.75rem 0.25rem 0.9rem;
-  position: relative;
-  transition: color 0.15s ease;
+  font-size: 1.35rem;
+  color: #8c8275;
+  padding: 0.45rem 1.4rem 0.35rem;
+  margin-bottom: -1px;
+  transition: color 0.15s ease, background-color 0.15s ease;
 }
 
 .tab:hover {
   color: #5c5546;
+  background: #f4efe1;
 }
 
-.tab-active {
+.tab-active,
+.tab-active:hover {
+  background: #fffdf7;
   color: #2b2420;
+  padding-bottom: 0.5rem;
+  border-top: 3px solid #c08a28;
 }
 
-.tab-active::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: 3px;
-  background: #c08a28;
-  border-radius: 2px;
+.tab:focus-visible {
+  outline: 2px solid #c08a28;
+  outline-offset: 2px;
 }
 
+/* The paper card, with a dashed "trail" just inside the edge */
 .tabs-panel {
   min-height: 200px;
+  background: #fffdf7;
+  border: 1px solid #ddd6c4;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(92, 85, 70, 0.08);
+  padding: 1.5rem;
+  outline: 1.5px dashed #d9cba5;
+  outline-offset: -9px;
+}
+
+@media (max-width: 560px) {
+  .tabs {
+    padding: 1rem 0.75rem 2rem;
+  }
+
+  .tabs-bar {
+    padding: 0 0.75rem;
+  }
+
+  .tab {
+    font-size: 1.15rem;
+    padding: 0.4rem 1rem 0.3rem;
+  }
+
+  .tabs-panel {
+    padding: 1rem 0.75rem;
+    outline: none;
+  }
 }
