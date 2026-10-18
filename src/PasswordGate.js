@@ -4,8 +4,13 @@ import './PasswordGate.css';
 import React, { useState } from 'react';
 import Tabs from './Tabs';
 
-// Replace with your actual deployed Worker URL
-const WORKER_URL = 'https://sf-scav-hunt-leaderboard-proxy.vananish.workers.dev';
+// Injected by create-react-app at build time
+declare var process: { env: { [string]: ?string } };
+
+// Set REACT_APP_WORKER_URL to point at a local worker (e.g. http://localhost:8787)
+const WORKER_URL: string =
+  process.env.REACT_APP_WORKER_URL ||
+  'https://sf-scav-hunt-leaderboard-proxy.vananish.workers.dev';
 
 export default function PasswordGate(): React.MixedElement {
   const [password, setPassword] = useState('');

@@ -24,3 +24,4 @@ yarn-error.log*
 
 # cloudflare worker
 worker/.wrangler
+worker/.dev.vars
