@@ -2,8 +2,11 @@
   text-align: left;
 }
 
+/* Centered above the feed, like the tracker's direction switch */
 .photos-switch {
-  margin-bottom: 1.5rem;
+  display: flex;
+  width: max-content;
+  margin: 0 auto 1.5rem;
 }
 
 /* Newest first, one post per row, centered like a social media feed */

@@ -31,10 +31,10 @@ type Props = {
   photoStream: ?Array<StreamPhoto>,
 };
 
-type View = 'stream' | 'standings';
+type View = 'feed' | 'standings';
 
 const VIEWS: Array<{ key: View, label: string }> = [
-  { key: 'stream', label: '📸 Stream' },
+  { key: 'feed', label: '📸 Feed' },
   { key: 'standings', label: '🏅 Standings' },
 ];
 
@@ -81,7 +81,7 @@ function birdsText(birds: ?string): ?string {
   return `${birds} ${birds === '1' ? 'bird' : 'birds'}`;
 }
 
-function Stream({ photos }: { photos: ?Array<StreamPhoto> }): React.MixedElement {
+function Feed({ photos }: { photos: ?Array<StreamPhoto> }): React.MixedElement {
   const [visibleCount, setVisibleCount] = useState(POSTS_PER_BATCH);
   const sentinel = useRef<mixed>(null);
   const total = photos ? photos.length : 0;
@@ -157,7 +157,7 @@ function Stream({ photos }: { photos: ?Array<StreamPhoto> }): React.MixedElement
 }
 
 export default function Photos({ photoLeaderboard, photoStream }: Props): React.MixedElement {
-  const [view, setView] = useState<View>('stream');
+  const [view, setView] = useState<View>('feed');
 
   return (
     <div className="photos">
@@ -178,7 +178,7 @@ export default function Photos({ photoLeaderboard, photoStream }: Props): React.
         ))}
       </div>
 
-      {view === 'stream' && <Stream photos={photoStream} />}
+      {view === 'feed' && <Feed photos={photoStream} />}
 
       {view === 'standings' &&
         (photoLeaderboard ? (
