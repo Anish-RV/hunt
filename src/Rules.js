@@ -8,6 +8,19 @@ import React from 'react';
 // Never name clues or locations here.
 const SECTIONS: Array<{ title: string, items: Array<React.Node> }> = [
   {
+    title: 'Waves and directions',
+    items: [
+      <>
+        Teams set off in waves. Your clock starts when your wave leaves, so starting later
+        doesn't count against you.
+      </>,
+      <>
+        Teams are split into two directions, <strong>🧛 Vampires</strong> and{' '}
+        <strong>🧟 Zombies</strong>, which visit the stops in a different order.
+      </>,
+    ],
+  },
+  {
     title: 'At each stop',
     items: [
       <>
