@@ -1,4 +1,8 @@
 .tabs {
+  /* .tabs sits in the flex column .site, where auto margins would otherwise
+     shrink it to its content, making the card a different width per tab */
+  width: 100%;
+  box-sizing: border-box;
   max-width: 860px;
   margin: 0 auto;
   padding: 0.5rem 1rem 3rem;
