@@ -35,7 +35,7 @@ export function parseTimestamp(value) {
 }
 
 // e.g. 1792247235000 -> "2:40 PM"
-function formatTimeOfDay(ms) {
+export function formatTimeOfDay(ms) {
   const date = new Date(ms);
   const h = date.getUTCHours();
   const m = String(date.getUTCMinutes()).padStart(2, '0');

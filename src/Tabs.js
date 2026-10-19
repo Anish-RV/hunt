@@ -4,18 +4,28 @@ import './Tabs.css';
 import React, { useState } from 'react';
 import Leaderboard from './Leaderboard';
 import Tracker from './Tracker';
-import History from './History';
+import Photos from './Photos';
+import type { StreamPhoto } from './Photos';
+import Rules from './Rules';
 import type { TrackerData } from './Tracker';
 
-type TabKey = 'leaderboard' | 'tracker' | 'history';
+type TabKey = 'leaderboard' | 'tracker' | 'photos' | 'rules';
 
 type Props = {
   leaderboardRows: Array<Array<string>>,
   tracker: ?TrackerData,
+  photoLeaderboard: ?Array<Array<string>>,
+  photoStream: ?Array<StreamPhoto>,
   updatedAt: ?string,
 };
 
-export default function Tabs({ leaderboardRows, tracker, updatedAt }: Props): React.MixedElement {
+export default function Tabs({
+  leaderboardRows,
+  tracker,
+  photoLeaderboard,
+  photoStream,
+  updatedAt,
+}: Props): React.MixedElement {
   const [activeTab, setActiveTab] = useState<TabKey>('leaderboard');
 
   return (
@@ -39,18 +49,27 @@ export default function Tabs({ leaderboardRows, tracker, updatedAt }: Props): Re
         </button>
         <button
           role="tab"
-          aria-selected={activeTab === 'history'}
-          className={activeTab === 'history' ? 'tab tab-active' : 'tab'}
-          onClick={() => setActiveTab('history')}
+          aria-selected={activeTab === 'photos'}
+          className={activeTab === 'photos' ? 'tab tab-active' : 'tab'}
+          onClick={() => setActiveTab('photos')}
         >
-          History
+          Photos
+        </button>
+        <button
+          role="tab"
+          aria-selected={activeTab === 'rules'}
+          className={activeTab === 'rules' ? 'tab tab-active' : 'tab'}
+          onClick={() => setActiveTab('rules')}
+        >
+          Rules
         </button>
       </div>
 
       <div className="tabs-panel">
         {activeTab === 'leaderboard' && <Leaderboard rows={leaderboardRows} />}
         {activeTab === 'tracker' && <Tracker tracker={tracker} updatedAt={updatedAt} />}
-        {activeTab === 'history' && <History />}
+        {activeTab === 'photos' && <Photos photoLeaderboard={photoLeaderboard} photoStream={photoStream} />}
+        {activeTab === 'rules' && <Rules />}
       </div>
     </div>
   );

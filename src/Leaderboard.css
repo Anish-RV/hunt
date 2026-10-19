@@ -56,9 +56,13 @@
   font-variant-numeric: tabular-nums;
 }
 
-.leaderboard-table td.leaderboard-num,
-.leaderboard-table td.leaderboard-title {
+.leaderboard-table td.leaderboard-num {
   white-space: nowrap;
+}
+
+/* Long team names wrap rather than push the last columns out of view */
+.leaderboard-table td.leaderboard-title {
+  min-width: 9rem;
 }
 
 .leaderboard-table th {
@@ -98,6 +102,11 @@
 
 /* Phones: each row becomes a small stacked card */
 @media (max-width: 560px) {
+  /* Cards always fit the screen, so there's nothing to scroll sideways */
+  .leaderboard {
+    overflow-x: visible;
+  }
+
   .leaderboard-table thead {
     position: absolute;
     width: 1px;
@@ -130,13 +139,18 @@
     border: 2px solid #c08a28;
   }
 
+  /* Desktop keeps names and numbers on one line; in a card they may wrap
+     instead of pushing the card wider than the screen */
   .leaderboard-table td,
-  .leaderboard-table td.leaderboard-num {
+  .leaderboard-table td.leaderboard-num,
+  .leaderboard-table td.leaderboard-title {
     display: flex;
     justify-content: space-between;
     gap: 1rem;
     padding: 0.35rem 0.9rem;
     text-align: right;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .leaderboard-table td::before {

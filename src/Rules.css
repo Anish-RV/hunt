@@ -1,0 +1,75 @@
+.rules {
+  color: #2b2420;
+  text-align: left;
+  max-width: 560px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+.rules-section + .rules-section,
+.rules-help {
+  margin-top: 1.4rem;
+}
+
+.rules-about {
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #efe9d8;
+  color: #8c8275;
+}
+
+.rules-about p {
+  margin: 0;
+}
+
+.rules-title {
+  font-family: KirangHaerang;
+  font-weight: normal;
+  font-size: 1.45rem;
+  margin: 0 0 0.35rem;
+}
+
+.rules-list {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.rules-list li + li {
+  margin-top: 0.3rem;
+}
+
+.rules-list li::marker {
+  color: #c08a28;
+}
+
+/* Help stands out so it's easy to find in a hurry */
+.rules-help {
+  padding: 0.9rem 1.1rem;
+  border-radius: 10px;
+  background: #fbf1d9;
+  border: 1px solid #ecd9a8;
+}
+
+.rules-help p {
+  margin: 0;
+}
+
+.rules-help-link {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  background: #117a52;
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.rules-help-link:hover {
+  background: #0d6644;
+}
+
+.rules-help-link:focus-visible {
+  outline: 2px solid #c08a28;
+  outline-offset: 2px;
+}

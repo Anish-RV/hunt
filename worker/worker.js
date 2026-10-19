@@ -13,10 +13,23 @@
  *   SHEET_RANGE          - e.g. "Leaderboard!A1:D100" (defaults below)
  *   TEAMS_RANGE, FORM_DATA_RANGE, FINISH_RANGE
  *                        - tabs the live tracker reads (see tracker.js)
+ *   PHOTO_LEADERBOARD_RANGE
+ *                        - the photo challenge standings
+ *   PHOTO_DATA_RANGE     - photo submissions, for the photo stream (see photos.js;
+ *                          also needs TEAMS_RANGE and the PHOTO_SIGNING_SECRET secret)
+ *   PHOTO_SIGNING_SECRET - secret that encrypts photo links; set it with
+ *                          `openssl rand -hex 32 | npx wrangler secret put PHOTO_SIGNING_SECRET`
  *   ALLOWED_ORIGIN       - your site's origin, for CORS (defaults to "*")
  */
 
 import { buildTracker } from "./tracker.js";
+import {
+  fetchPhotoPreview,
+  openPhotoToken,
+  parsePhotoStream,
+  photoLinkExpiry,
+  sealPhotoToken,
+} from "./photos.js";
 
 const DEFAULT_RANGE = "Sheet1!A1:Z1000";
 
@@ -41,13 +54,19 @@ export default {
 
     const corsHeaders = {
       "Access-Control-Allow-Origin": originToSend,
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
     };
 
     // CORS preflight
     if (request.method === "OPTIONS") {
       return new Response(null, { headers: corsHeaders });
+    }
+
+    // Photo previews: the token in the path is the proof of access
+    const url = new URL(request.url);
+    if (request.method === "GET" && url.pathname.startsWith("/photo/")) {
+      return servePhoto(env, url.pathname.slice("/photo/".length));
     }
 
     if (request.method !== "POST") {
@@ -69,9 +88,10 @@ export default {
 
     try {
       const data = await getSiteData(env);
+      const photoStream = await signPhotoStream(env, data.photoStream);
       // `values` is kept for frontends deployed before `leaderboard` existed
       return json(
-        { values: data.leaderboard, ...data },
+        { values: data.leaderboard, ...data, photoStream },
         200,
         corsHeaders
       );
@@ -124,31 +144,108 @@ async function getSiteData(env) {
 async function fetchSiteData(env) {
   const accessToken = await getGoogleAccessToken(env);
   const leaderboardRange = env.SHEET_RANGE || DEFAULT_RANGE;
-  const trackerRanges = [env.TEAMS_RANGE, env.FORM_DATA_RANGE, env.FINISH_RANGE];
   const updatedAt = new Date().toISOString();
 
-  if (trackerRanges.every(Boolean)) {
+  // Everything beyond the main leaderboard is optional and fetched in the same
+  // request; a tab is only requested if its range is configured
+  const optional = {
+    teams: env.TEAMS_RANGE,
+    form: env.FORM_DATA_RANGE,
+    finish: env.FINISH_RANGE,
+    photoLeaderboard: env.PHOTO_LEADERBOARD_RANGE,
+    photoData: env.PHOTO_DATA_RANGE,
+  };
+  const keys = Object.keys(optional).filter((key) => optional[key]);
+
+  if (keys.length > 0) {
     try {
-      const [leaderboard, teamsRows, formRows, finishRows] = await batchGetRanges(
-        env,
-        accessToken,
-        [leaderboardRange, ...trackerRanges]
-      );
+      const [leaderboard, ...rows] = await batchGetRanges(env, accessToken, [
+        leaderboardRange,
+        ...keys.map((key) => optional[key]),
+      ]);
+      const tabs = Object.fromEntries(keys.map((key, i) => [key, rows[i]]));
       return {
         leaderboard,
-        tracker: buildTracker({ teamsRows, formRows, finishRows }),
+        tracker:
+          tabs.teams && tabs.form && tabs.finish
+            ? buildTracker({ teamsRows: tabs.teams, formRows: tabs.form, finishRows: tabs.finish })
+            : null,
+        photoLeaderboard: tabs.photoLeaderboard ?? null,
+        // File IDs stay server-side; signPhotoStream turns them into links
+        photoStream:
+          tabs.photoData && tabs.teams ? parsePhotoStream(tabs.photoData, tabs.teams) : null,
         updatedAt,
       };
     } catch (err) {
-      // A renamed or missing tracker tab shouldn't take the leaderboard down
-      console.error("Tracker fetch failed, falling back to leaderboard only", {
+      // A renamed or missing extra tab shouldn't take the leaderboard down
+      console.error("Extra tabs fetch failed, falling back to leaderboard only", {
         message: err?.message,
       });
     }
   }
 
   const [leaderboard] = await batchGetRanges(env, accessToken, [leaderboardRange]);
-  return { leaderboard, tracker: null, updatedAt };
+  return { leaderboard, tracker: null, photoLeaderboard: null, photoStream: null, updatedAt };
+}
+
+// Swaps each photo's Drive file ID for an expiring /photo/<token> path. It's
+// a path, not a full URL, because the worker can't always tell its own public
+// address (in `wrangler dev --remote` it sees the deployed hostname); the site
+// resolves it against the worker URL it called.
+//
+// A photo's link only changes when its expiry does (see photoLinkExpiry), so
+// each link is remembered and only new or renewing photos are encrypted. That
+// keeps the CPU cost per request tiny even with hundreds of photos.
+const photoLinks = new Map(); // fileId -> { expiresAt, src }
+
+async function signPhotoStream(env, photos) {
+  if (!photos || !env.PHOTO_SIGNING_SECRET) return null;
+  const now = Date.now();
+  const signed = await Promise.all(
+    photos.map(async ({ fileId, sortKey, ...photo }) => {
+      const expiresAt = photoLinkExpiry(fileId, now);
+      let link = photoLinks.get(fileId);
+      if (!link || link.expiresAt !== expiresAt) {
+        const token = await sealPhotoToken(env.PHOTO_SIGNING_SECRET, fileId, expiresAt);
+        link = { expiresAt, src: `/photo/${token}` };
+        photoLinks.set(fileId, link);
+      }
+      return { ...photo, src: link.src };
+    })
+  );
+  // Forget links for photos that are no longer in the stream
+  if (photoLinks.size > photos.length) {
+    const current = new Set(photos.map((p) => p.fileId));
+    for (const fileId of photoLinks.keys()) {
+      if (!current.has(fileId)) photoLinks.delete(fileId);
+    }
+  }
+  return signed;
+}
+
+async function servePhoto(env, token) {
+  const fileId = env.PHOTO_SIGNING_SECRET
+    ? await openPhotoToken(env.PHOTO_SIGNING_SECRET, token)
+    : null;
+  if (!fileId) {
+    return new Response("Not found", { status: 404 });
+  }
+  try {
+    const preview = await fetchPhotoPreview(fileId, await getGoogleAccessToken(env));
+    if (!preview) {
+      return new Response("Photo unavailable", { status: 502 });
+    }
+    return new Response(preview.body, {
+      headers: {
+        "Content-Type": preview.headers.get("Content-Type") || "image/jpeg",
+        // The link itself expires, so browsers can keep the image until then
+        "Cache-Control": "private, max-age=3600",
+      },
+    });
+  } catch (err) {
+    console.error("Photo error", { message: err?.message });
+    return new Response("Photo unavailable", { status: 502 });
+  }
 }
 
 // Fetches several ranges in one Sheets API request; returns their rows in order
@@ -198,12 +295,24 @@ function timingSafeEqual(a, b) {
 
 // --- Google service-account auth (JWT bearer flow), using Web Crypto only ---
 
+// Reused across requests within this worker instance until it nearly expires,
+// since every photo preview needs one
+let cachedAccessToken = null; // { token, expiresAt }
+
 async function getGoogleAccessToken(env) {
+  if (cachedAccessToken && Date.now() < cachedAccessToken.expiresAt) {
+    return cachedAccessToken.token;
+  }
+
   const header = { alg: "RS256", typ: "JWT" };
   const now = Math.floor(Date.now() / 1000);
   const claimSet = {
     iss: env.GOOGLE_CLIENT_EMAIL,
-    scope: "https://www.googleapis.com/auth/spreadsheets.readonly",
+    scope: [
+      "https://www.googleapis.com/auth/spreadsheets.readonly",
+      // For photo stream previews of the photo challenge uploads
+      "https://www.googleapis.com/auth/drive.readonly",
+    ].join(" "),
     aud: "https://oauth2.googleapis.com/token",
     iat: now,
     exp: now + 3600,
@@ -241,6 +350,11 @@ async function getGoogleAccessToken(env) {
   }
 
   const tokenData = await tokenRes.json();
+  // Tokens last an hour; refresh a few minutes early
+  cachedAccessToken = {
+    token: tokenData.access_token,
+    expiresAt: Date.now() + ((tokenData.expires_in || 3600) - 300) * 1000,
+  };
   return tokenData.access_token;
 }
 

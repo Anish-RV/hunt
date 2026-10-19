@@ -1,0 +1,107 @@
+.photos {
+  text-align: left;
+}
+
+.photos-switch {
+  margin-bottom: 1.5rem;
+}
+
+/* Newest first, one post per row, centered like a social media feed */
+.photos-feed {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 470px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.photos-post {
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fffdf7;
+  border: 1px solid #ecd9a8;
+}
+
+.photos-post-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.8rem;
+}
+
+.photos-avatar {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* background-color is set per team in Photos.js */
+  color: #fffdf7;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.photos-team {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #2b2420;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.photos-time {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  color: #8c8275;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Photos keep their own shape, within limits, with a placeholder while loading */
+.photos-image {
+  display: block;
+  width: 100%;
+  min-height: 12rem;
+  max-height: 600px;
+  object-fit: cover;
+  background: #efe9d8;
+}
+
+.photos-birds {
+  margin: 0;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2b2420;
+}
+
+.photos-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.photos-more-button {
+  border: 1px solid #ddd6c4;
+  background: #efe9d8;
+  color: #5c5546;
+  border-radius: 999px;
+  padding: 0.45rem 1.2rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.photos-more-button:hover {
+  background: #f4efe1;
+}
+
+.photos-empty {
+  color: #8c8275;
+  font-size: 0.95rem;
+  text-align: center;
+  margin: 2rem 0;
+}

@@ -4,10 +4,12 @@ compatibility_date = "2026-10-06"
 
 [vars]
 ALLOWED_ORIGIN = "https://sanfranciscohunt.com,http://localhost:3000"
-SHEET_RANGE = "leaderboard_external!A1:Z1000"
-TEAMS_RANGE = "Teams!A1:Z500"
-FORM_DATA_RANGE = "'Form Data'!A1:AZ3000"
-FINISH_RANGE = "'Finish Data'!A1:Z1000"
+SHEET_RANGE = "leaderboard_external!A:Z"
+TEAMS_RANGE = "Teams!A:Z"
+FORM_DATA_RANGE = "'Form Data'!A:AZ"
+FINISH_RANGE = "'Finish Data'!A:Z"
+PHOTO_LEADERBOARD_RANGE = "'Photo Leaderboard'!A:Z"
+PHOTO_DATA_RANGE = "'Photo Data'!A:Z"
 
 [observability.logs]
 enabled = true

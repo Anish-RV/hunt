@@ -4,7 +4,12 @@ import './PasswordGate.css';
 import React, { useEffect, useRef, useState } from 'react';
 import Tabs from './Tabs';
 import Skyline from './Skyline';
-import FAKE_LEADERBOARD_ROWS, { FAKE_TRACKER } from './fakeLeaderboard';
+import FAKE_LEADERBOARD_ROWS, {
+  FAKE_PHOTO_LEADERBOARD_ROWS,
+  FAKE_PHOTO_STREAM,
+  FAKE_TRACKER,
+} from './fakeLeaderboard';
+import type { StreamPhoto } from './Photos';
 import type { TrackerData } from './Tracker';
 
 // Injected by create-react-app at build time
@@ -57,6 +62,12 @@ export default function PasswordGate(): React.MixedElement {
     USE_FAKE_DATA ? FAKE_LEADERBOARD_ROWS : null
   );
   const [tracker, setTracker] = useState<?TrackerData>(USE_FAKE_DATA ? FAKE_TRACKER : null);
+  const [photoLeaderboard, setPhotoLeaderboard] = useState<?Array<Array<string>>>(
+    USE_FAKE_DATA ? FAKE_PHOTO_LEADERBOARD_ROWS : null
+  );
+  const [photoStream, setPhotoStream] = useState<?Array<StreamPhoto>>(
+    USE_FAKE_DATA ? FAKE_PHOTO_STREAM : null
+  );
   const [updatedAt, setUpdatedAt] = useState<?string>(
     USE_FAKE_DATA ? new Date().toISOString() : null
   );
@@ -108,6 +119,13 @@ export default function PasswordGate(): React.MixedElement {
     // `leaderboard` replaced `values`; fall back for an older worker
     setRows(data.leaderboard || data.values || []);
     setTracker(data.tracker || null);
+    setPhotoLeaderboard(data.photoLeaderboard || null);
+    // Photo paths are relative to the worker
+    setPhotoStream(
+      data.photoStream
+        ? data.photoStream.map((photo) => ({ ...photo, src: WORKER_URL.replace(/\/$/, '') + photo.src }))
+        : null
+    );
     setUpdatedAt(data.updatedAt || null);
   }
 
@@ -154,7 +172,15 @@ export default function PasswordGate(): React.MixedElement {
   // The entrance: the password form, or nothing while a saved password is tried
   let content = null;
   if (rows) {
-    content = <Tabs leaderboardRows={rows} tracker={tracker} updatedAt={updatedAt} />;
+    content = (
+      <Tabs
+        leaderboardRows={rows}
+        tracker={tracker}
+        photoLeaderboard={photoLeaderboard}
+        photoStream={photoStream}
+        updatedAt={updatedAt}
+      />
+    );
   } else if (!checkingSaved) {
     content = (
       <div className="gate">

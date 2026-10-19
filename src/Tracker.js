@@ -102,10 +102,10 @@ function TeamList({
   );
 }
 
-// One direction's route, drawn as a transit line: stops alternate with the
-// stretches of track between them. Each item renders exactly four parts
-// (top, track, label, bottom) so they line up in the CSS grid. Walking teams
-// sit above the track and teams at a stop below it, so they never overlap.
+// One direction's route, drawn as a transit line running top to bottom: stops
+// alternate with the stretches of track between them. Each item renders the
+// same four parts (top, track, label, bottom); stops show their name with the
+// teams there underneath, and stretches show the teams walking them.
 function SubwayLine({
   route,
   teams,
@@ -116,8 +116,7 @@ function SubwayLine({
   const stops: Array<Stop> = ['start', ...route, 'final'];
 
   return (
-    // --items lets the CSS draw one line from the first stop to the last
-    <ol className="subway" style={{ '--items': stops.length * 2 - 1 }}>
+    <ol className="subway">
       {stops.map((stop, i) => (
         <React.Fragment key={String(stop)}>
           <li

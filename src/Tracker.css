@@ -49,10 +49,9 @@
 }
 
 /*
- * The line is a 4-row grid: walking teams above the track, then the track,
- * stop names, and teams at each stop underneath. Stops and the stretches
- * between them each take one column (--items of them); each <li> passes its
- * four children straight into the grid.
+ * The route runs top to bottom at every screen size, so it holds any number
+ * of teams: each stop and each stretch between stops is a two-column row, with
+ * the track on the left and the stop name and team chips to the right.
  */
 .subway {
   --track: #c08a28;
@@ -60,69 +59,55 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  grid-template-columns: repeat(var(--items), minmax(0, 1fr));
-  grid-template-rows: auto var(--node-row) auto auto;
-  grid-auto-flow: column;
-  /* Room for markers at the first and last stops, which can be wider than their column */
-  padding: 0 1.5rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .subway-stop,
 .subway-segment {
-  display: contents;
+  display: grid;
+  grid-template-columns: var(--node-row) 1fr;
+  column-gap: 0.75rem;
 }
 
-.subway-top {
-  grid-row: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: center;
-  min-height: 0.75rem;
-  padding-bottom: 0.4rem;
-}
-
-.subway-label {
-  grid-row: 3;
-  justify-self: center;
-  margin-top: 0.4rem;
-  font-weight: 600;
-  font-size: 0.85rem;
-  white-space: nowrap;
+.subway-segment {
+  min-height: 1.5rem;
 }
 
 .subway-track {
-  grid-row: 2;
+  grid-column: 1;
+  grid-row: 1 / span 3;
   position: relative;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: flex-start;
 }
 
-/* Each cell draws its piece of track, overlapping slightly so there are no seams */
+/* Each row draws its piece of track, overlapping slightly so there are no seams */
 .subway-track::before {
   content: '';
   position: absolute;
-  left: -1px;
-  right: -1px;
-  top: calc(50% - 2px);
-  height: 4px;
+  left: calc(50% - 2px);
+  top: -1px;
+  bottom: -1px;
+  width: 4px;
   background: var(--track);
 }
 
 .subway-stop:first-child .subway-track::before {
-  left: 50%;
+  top: calc(var(--node-row) / 2);
 }
 
 .subway-stop:last-child .subway-track::before {
-  right: 50%;
+  bottom: auto;
+  height: calc(var(--node-row) / 2);
 }
 
 .subway-node {
   position: relative;
   width: 1rem;
   height: 1rem;
+  margin-top: 0.125rem;
   border-radius: 50%;
   background: #fffdf7;
   border: 3px solid var(--track);
@@ -135,44 +120,54 @@
   background: var(--track);
 }
 
+/* Stops: the name sits level with the node, with teams there underneath.
+   Stretches between stops: the teams walking them. */
+.subway-top,
+.subway-label,
 .subway-bottom {
-  grid-row: 4;
-  display: flex;
-  justify-content: center;
+  grid-column: 2;
   min-width: 0;
 }
 
-/* Team markers */
+.subway-label {
+  grid-row: 1;
+  font-weight: 600;
+  font-size: 0.85rem;
+  line-height: var(--node-row);
+  white-space: nowrap;
+}
+
+.subway-top {
+  grid-row: 1;
+}
+
+.subway-stop .subway-top {
+  display: none;
+}
+
+.subway-bottom {
+  grid-row: 2;
+}
+
+/* Team chips wrap across the width, so a crowded stop stays short */
 .subway-teams {
   list-style: none;
-  margin: 0;
+  margin: 0.3rem 0 0.5rem;
   padding: 0;
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-wrap: wrap;
+  align-items: flex-start;
   gap: 0.35rem;
-}
-
-.subway-bottom .subway-teams {
-  margin-top: 0.4rem;
-}
-
-.subway-top .subway-teams {
-  margin-bottom: 0.1rem;
 }
 
 .subway-team {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  /* Wider than its column is fine: neighboring columns' markers are on the other side of the line */
-  width: max-content;
-  max-width: 7.5rem;
+  align-items: baseline;
+  gap: 0.35rem;
   padding: 0.25rem 0.6rem;
   border-radius: 8px;
   background: #fbf1d9;
   border: 1px solid #ecd9a8;
-  text-align: center;
   line-height: 1.2;
 }
 
@@ -219,105 +214,8 @@
   margin: 0.75rem 0 0;
 }
 
-/* Phones: the line runs top to bottom, with names and teams to the right */
 @media (max-width: 560px) {
   .tracker-header {
     flex-wrap: wrap;
-  }
-
-  .subway {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .subway-stop,
-  .subway-segment {
-    display: grid;
-    grid-template-columns: var(--node-row) 1fr;
-    column-gap: 0.75rem;
-  }
-
-  .subway-segment {
-    min-height: 1.5rem;
-  }
-
-  .subway-track {
-    grid-column: 1;
-    grid-row: 1 / span 3;
-    align-items: flex-start;
-  }
-
-  .subway-track::before,
-  .subway-stop:first-child .subway-track::before,
-  .subway-stop:last-child .subway-track::before {
-    left: calc(50% - 2px);
-    right: auto;
-    top: -1px;
-    bottom: -1px;
-    width: 4px;
-    height: auto;
-  }
-
-  .subway-stop:first-child .subway-track::before {
-    top: calc(var(--node-row) / 2);
-  }
-
-  .subway-stop:last-child .subway-track::before {
-    bottom: auto;
-    height: calc(var(--node-row) / 2);
-  }
-
-  .subway-node {
-    margin-top: 0.125rem;
-  }
-
-  .subway {
-    padding: 0;
-  }
-
-  .subway-top,
-  .subway-label,
-  .subway-bottom {
-    grid-column: 2;
-    align-items: flex-start;
-    justify-content: flex-start;
-    justify-self: start;
-    padding: 0;
-    margin: 0;
-    min-height: 0;
-  }
-
-  /* Stops: name level with the node; segments: walking teams */
-  .subway-label {
-    grid-row: 1;
-    line-height: var(--node-row);
-  }
-
-  .subway-top {
-    grid-row: 1;
-  }
-
-  .subway-stop .subway-top {
-    display: none;
-  }
-
-  .subway-bottom {
-    grid-row: 2;
-  }
-
-  .subway-teams,
-  .subway-bottom .subway-teams,
-  .subway-top .subway-teams {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    margin: 0.3rem 0 0.5rem;
-  }
-
-  .subway-team {
-    flex-direction: row;
-    gap: 0.35rem;
-    align-items: baseline;
-    max-width: none;
   }
 }

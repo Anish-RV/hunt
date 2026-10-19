@@ -67,18 +67,27 @@
     padding: 0.5rem 0.75rem 2rem;
   }
 
+  /* The tabs share the card's full width, so all four fit on one line on
+     360px-wide phones without shrinking the text */
   .tabs-bar {
-    padding: 0 0.75rem;
+    gap: 0.25rem;
+    padding: 0;
   }
 
   .tab {
+    flex: 1 1 auto;
     font-size: 1.15rem;
-    padding: 0.4rem 1rem 0.3rem;
+    padding: 0.4rem 0.4rem 0.3rem;
+    white-space: nowrap;
   }
 
+  /* Square top corners, since the full-width tabs reach the card's edges and
+     would overhang a rounded corner */
   .tabs-panel {
     padding: 1rem 0.75rem;
     outline: none;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
   }
 }
 
