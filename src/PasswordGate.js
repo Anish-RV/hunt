@@ -1,9 +1,11 @@
 // @flow
 
 import './PasswordGate.css';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Tabs from './Tabs';
-import FAKE_LEADERBOARD_ROWS from './fakeLeaderboard';
+import Skyline from './Skyline';
+import FAKE_LEADERBOARD_ROWS, { FAKE_TRACKER } from './fakeLeaderboard';
+import type { TrackerData } from './Tracker';
 
 // Injected by create-react-app at build time
 declare var process: { env: { [string]: ?string } };
@@ -19,6 +21,9 @@ const WORKER_URL: string =
   'https://sf-scav-hunt-leaderboard-proxy.vananish.workers.dev';
 
 const USE_FAKE_DATA = Boolean(process.env.REACT_APP_FAKE_LEADERBOARD);
+
+// How often an unlocked page re-fetches, so the tracker stays live
+const REFRESH_MS = 60 * 1000;
 
 // The password is remembered in this browser after a successful unlock, so
 // returning visitors skip the form. Storage can be unavailable (e.g. private
@@ -51,8 +56,14 @@ export default function PasswordGate(): React.MixedElement {
   const [rows, setRows] = useState<?Array<Array<string>>>(
     USE_FAKE_DATA ? FAKE_LEADERBOARD_ROWS : null
   );
+  const [tracker, setTracker] = useState<?TrackerData>(USE_FAKE_DATA ? FAKE_TRACKER : null);
+  const [updatedAt, setUpdatedAt] = useState<?string>(
+    USE_FAKE_DATA ? new Date().toISOString() : null
+  );
   const [error, setError] = useState<?string>(null);
   const [loading, setLoading] = useState(false);
+  // The password that unlocked the page, reused for background refreshes
+  const unlockedPassword = useRef<?string>(null);
   // True while trying a saved password, so the form doesn't flash on screen
   const [checkingSaved, setCheckingSaved] = useState(
     !USE_FAKE_DATA && loadSavedPassword() != null
@@ -83,13 +94,21 @@ export default function PasswordGate(): React.MixedElement {
 
       const data = await res.json();
       savePassword(candidate);
-      setRows(data.values || []);
+      unlockedPassword.current = candidate;
+      showData(data);
     } catch (err) {
       setError('Could not reach the leaderboard. Check your connection and try again.');
     } finally {
       setLoading(false);
       setCheckingSaved(false);
     }
+  }
+
+  function showData(data: Object) {
+    // `leaderboard` replaced `values`; fall back for an older worker
+    setRows(data.leaderboard || data.values || []);
+    setTracker(data.tracker || null);
+    setUpdatedAt(data.updatedAt || null);
   }
 
   // On first load, try the saved password if there is one
@@ -100,45 +119,79 @@ export default function PasswordGate(): React.MixedElement {
     }
   }, []);
 
+  // While unlocked, quietly re-fetch so the tracker and scores stay current.
+  // A failed refresh keeps the last data on screen, except a rejected password,
+  // which sends the visitor back to the form.
+  const isUnlocked = rows != null;
+  useEffect(() => {
+    if (USE_FAKE_DATA || !isUnlocked) {
+      return undefined;
+    }
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: unlockedPassword.current }),
+        });
+        if (res.status === 401) {
+          forgetPassword();
+          setRows(null);
+          setError('The password has changed. Please enter the new one.');
+        } else if (res.ok) {
+          showData(await res.json());
+        }
+      } catch {}
+    }, REFRESH_MS);
+    return () => clearInterval(interval);
+  }, [isUnlocked]);
+
   function handleUnlock(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     unlock(password, false);
   }
 
-  // Trying a saved password: just the header, no form
-  if (!rows && checkingSaved) {
-    return (
-      <div className="gate-screen">
-        <header className="header">Haunted Hunt</header>
+  // The entrance: the password form, or nothing while a saved password is tried
+  let content = null;
+  if (rows) {
+    content = <Tabs leaderboardRows={rows} tracker={tracker} updatedAt={updatedAt} />;
+  } else if (!checkingSaved) {
+    content = (
+      <div className="gate">
+        {/* unlock() clears the error first, so each wrong guess replays the shake */}
+        <form
+          onSubmit={handleUnlock}
+          className={error ? 'gate-form gate-form-error' : 'gate-form'}
+        >
+          <label htmlFor="gate-password" className="gate-prompt">
+            Speak the password, if you dare…
+          </label>
+          <input
+            id="gate-password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            className="gate-password-input"
+            autoFocus
+          />
+          <button type="submit" disabled={loading} className="gate-submit">
+            {loading ? 'Summoning…' : 'Enter'}
+          </button>
+          {error && <p className="gate-error">{error}</p>}
+        </form>
       </div>
     );
   }
 
-  // Not yet unlocked: full-screen "Haunted Hunt" header plus the password form
-  if (!rows) {
-    return (
-      <div className="gate-screen">
-        <header className="header">Haunted Hunt</header>
-        <div className="gate">
-          <form onSubmit={handleUnlock}>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter password"
-              className="gate-password-input"
-              autoFocus
-            />
-            <button type="submit" disabled={loading} className="gate-submit">
-              {loading ? 'Checking…' : 'Unlock'}
-            </button>
-            {error && <p className="gate-error">{error}</p>}
-          </form>
-        </div>
-      </div>
-    );
-  }
-
-  // Unlocked: hand the fetched rows down to the tabbed site
-  return <Tabs leaderboardRows={rows} />;
+  // The skyline header stays put while the content below it changes, so
+  // unlocking swaps the form for the tabs without anything jumping
+  return (
+    <div className="site">
+      <Skyline>
+        <h1 className="site-title">Haunted Hunt</h1>
+      </Skyline>
+      {content}
+    </div>
+  );
 }

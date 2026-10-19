@@ -11,10 +11,18 @@
  *
  * Optional var (set via `wrangler.toml` [vars] or `wrangler secret put`):
  *   SHEET_RANGE          - e.g. "Leaderboard!A1:D100" (defaults below)
+ *   TEAMS_RANGE, FORM_DATA_RANGE, FINISH_RANGE
+ *                        - tabs the live tracker reads (see tracker.js)
  *   ALLOWED_ORIGIN       - your site's origin, for CORS (defaults to "*")
  */
 
+import { buildTracker } from "./tracker.js";
+
 const DEFAULT_RANGE = "Sheet1!A1:Z1000";
+
+// Sheet data is reused for this long, so many viewers refreshing at once
+// share one Sheets API request instead of each making their own.
+const SHEET_CACHE_MS = 30 * 1000;
 
 export default {
   async fetch(request, env) {
@@ -60,36 +68,21 @@ export default {
     }
 
     try {
-      const accessToken = await getGoogleAccessToken(env);
-      const range = env.SHEET_RANGE || DEFAULT_RANGE;
-      const sheetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${env.SHEET_ID}/values/${encodeURIComponent(
-        range
-      )}`;
-
-      const sheetRes = await fetch(sheetUrl, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-
-      if (!sheetRes.ok) {
-        const errText = await sheetRes.text();
-        // Full detail goes to Observability logs; client gets a terse response.
-        console.error("Sheets API error", {
-          status: sheetRes.status,
-          statusText: sheetRes.statusText,
-          requestedUrl: sheetUrl,
-          body: errText,
-        });
+      const data = await getSiteData(env);
+      // `values` is kept for frontends deployed before `leaderboard` existed
+      return json(
+        { values: data.leaderboard, ...data },
+        200,
+        corsHeaders
+      );
+    } catch (err) {
+      if (err instanceof SheetsError) {
         return json(
-          { error: "Failed to fetch sheet", status: sheetRes.status },
+          { error: "Failed to fetch sheet", status: err.status },
           502,
           corsHeaders
         );
       }
-
-      const sheetData = await sheetRes.json();
-      // sheetData.values is an array of rows (each row an array of cell strings)
-      return json({ values: sheetData.values || [] }, 200, corsHeaders);
-    } catch (err) {
       console.error("Worker error", {
         message: err?.message,
         stack: err?.stack,
@@ -98,6 +91,92 @@ export default {
     }
   },
 };
+
+class SheetsError extends Error {
+  constructor(status) {
+    super(`Sheets API error ${status}`);
+    this.status = status;
+  }
+}
+
+// Reused across requests within this worker instance (see SHEET_CACHE_MS)
+let cachedSiteData = null; // { at, data }
+let pendingSiteData = null;
+
+async function getSiteData(env) {
+  if (cachedSiteData && Date.now() - cachedSiteData.at < SHEET_CACHE_MS) {
+    return cachedSiteData.data;
+  }
+  // If a fetch is already in flight, share it rather than starting another
+  if (!pendingSiteData) {
+    pendingSiteData = fetchSiteData(env)
+      .then((data) => {
+        cachedSiteData = { at: Date.now(), data };
+        return data;
+      })
+      .finally(() => {
+        pendingSiteData = null;
+      });
+  }
+  return pendingSiteData;
+}
+
+async function fetchSiteData(env) {
+  const accessToken = await getGoogleAccessToken(env);
+  const leaderboardRange = env.SHEET_RANGE || DEFAULT_RANGE;
+  const trackerRanges = [env.TEAMS_RANGE, env.FORM_DATA_RANGE, env.FINISH_RANGE];
+  const updatedAt = new Date().toISOString();
+
+  if (trackerRanges.every(Boolean)) {
+    try {
+      const [leaderboard, teamsRows, formRows, finishRows] = await batchGetRanges(
+        env,
+        accessToken,
+        [leaderboardRange, ...trackerRanges]
+      );
+      return {
+        leaderboard,
+        tracker: buildTracker({ teamsRows, formRows, finishRows }),
+        updatedAt,
+      };
+    } catch (err) {
+      // A renamed or missing tracker tab shouldn't take the leaderboard down
+      console.error("Tracker fetch failed, falling back to leaderboard only", {
+        message: err?.message,
+      });
+    }
+  }
+
+  const [leaderboard] = await batchGetRanges(env, accessToken, [leaderboardRange]);
+  return { leaderboard, tracker: null, updatedAt };
+}
+
+// Fetches several ranges in one Sheets API request; returns their rows in order
+async function batchGetRanges(env, accessToken, ranges) {
+  const params = new URLSearchParams();
+  ranges.forEach((range) => params.append("ranges", range));
+  const sheetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${env.SHEET_ID}/values:batchGet?${params}`;
+
+  const sheetRes = await fetch(sheetUrl, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+
+  if (!sheetRes.ok) {
+    const errText = await sheetRes.text();
+    // Full detail goes to Observability logs; client gets a terse response.
+    console.error("Sheets API error", {
+      status: sheetRes.status,
+      statusText: sheetRes.statusText,
+      requestedUrl: sheetUrl,
+      body: errText,
+    });
+    throw new SheetsError(sheetRes.status);
+  }
+
+  const sheetData = await sheetRes.json();
+  // Each valueRange's values is an array of rows (each row an array of cell strings)
+  return (sheetData.valueRanges || []).map((r) => r.values || []);
+}
 
 function json(obj, status, extraHeaders = {}) {
   return new Response(JSON.stringify(obj), {

@@ -1,15 +1,7 @@
 .tabs {
   max-width: 860px;
   margin: 0 auto;
-  padding: 1.5rem 1rem 3rem;
-}
-
-.tabs-title {
-  font-family: KirangHaerang;
-  font-weight: normal;
-  font-size: calc(2.5rem + 3vmin);
-  color: #2b2420;
-  margin: 0 0 1rem;
+  padding: 0.5rem 1rem 3rem;
 }
 
 /* Folder tabs that sit on top of the card */
@@ -68,7 +60,7 @@
 
 @media (max-width: 560px) {
   .tabs {
-    padding: 1rem 0.75rem 2rem;
+    padding: 0.5rem 0.75rem 2rem;
   }
 
   .tabs-bar {
@@ -83,5 +75,27 @@
   .tabs-panel {
     padding: 1rem 0.75rem;
     outline: none;
+  }
+}
+
+/* Fades in under the header once unlocked */
+.tabs {
+  animation: tabs-appear 0.6s ease-out both;
+}
+
+@keyframes tabs-appear {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabs {
+    animation: none;
   }
 }

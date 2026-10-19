@@ -1,0 +1,323 @@
+.tracker {
+  color: #2b2420;
+  text-align: left;
+}
+
+/* Direction switch */
+.tracker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.tracker-switch {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 999px;
+  background: #efe9d8;
+  border: 1px solid #ddd6c4;
+}
+
+.tracker-switch-option {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: KirangHaerang;
+  font-size: 1.2rem;
+  color: #8c8275;
+  padding: 0.3rem 1.1rem;
+  border-radius: 999px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.tracker-switch-option:hover {
+  color: #5c5546;
+}
+
+.tracker-switch-active,
+.tracker-switch-active:hover {
+  background: #fffdf7;
+  color: #2b2420;
+  box-shadow: 0 1px 3px rgba(92, 85, 70, 0.18);
+}
+
+.tracker-switch-option:focus-visible {
+  outline: 2px solid #c08a28;
+  outline-offset: 2px;
+}
+
+/*
+ * The line is a 4-row grid: walking teams above the track, then the track,
+ * stop names, and teams at each stop underneath. Stops and the stretches
+ * between them each take one column (--items of them); each <li> passes its
+ * four children straight into the grid.
+ */
+.subway {
+  --track: #c08a28;
+  --node-row: 1.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--items), minmax(0, 1fr));
+  grid-template-rows: auto var(--node-row) auto auto;
+  grid-auto-flow: column;
+  /* Room for markers at the first and last stops, which can be wider than their column */
+  padding: 0 1.5rem;
+}
+
+.subway-stop,
+.subway-segment {
+  display: contents;
+}
+
+.subway-top {
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 0.75rem;
+  padding-bottom: 0.4rem;
+}
+
+.subway-label {
+  grid-row: 3;
+  justify-self: center;
+  margin-top: 0.4rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.subway-track {
+  grid-row: 2;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Each cell draws its piece of track, overlapping slightly so there are no seams */
+.subway-track::before {
+  content: '';
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  top: calc(50% - 2px);
+  height: 4px;
+  background: var(--track);
+}
+
+.subway-stop:first-child .subway-track::before {
+  left: 50%;
+}
+
+.subway-stop:last-child .subway-track::before {
+  right: 50%;
+}
+
+.subway-node {
+  position: relative;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: #fffdf7;
+  border: 3px solid var(--track);
+  box-sizing: border-box;
+}
+
+.subway-stop-terminal .subway-node {
+  width: 1.15rem;
+  height: 1.15rem;
+  background: var(--track);
+}
+
+.subway-bottom {
+  grid-row: 4;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+/* Team markers */
+.subway-teams {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.subway-bottom .subway-teams {
+  margin-top: 0.4rem;
+}
+
+.subway-top .subway-teams {
+  margin-bottom: 0.1rem;
+}
+
+.subway-team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Wider than its column is fine: neighboring columns' markers are on the other side of the line */
+  width: max-content;
+  max-width: 7.5rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 8px;
+  background: #fbf1d9;
+  border: 1px solid #ecd9a8;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.subway-team-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.subway-team-since {
+  font-size: 0.68rem;
+  color: #8c8275;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Teams between stops are still on the move */
+.subway-team-walking {
+  background: #fffdf7;
+  border-style: dashed;
+  border-color: #d9cba5;
+}
+
+.subway-team-icon {
+  margin-right: 0.3rem;
+}
+
+.tracker-legend {
+  list-style: none;
+  margin: 1.75rem 0 0;
+  padding: 1rem 0 0;
+  border-top: 1px solid #efe9d8;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.5rem;
+  font-size: 0.8rem;
+  color: #5c5546;
+}
+
+.tracker-updated,
+.tracker-empty {
+  color: #8c8275;
+  font-size: 0.85rem;
+  text-align: center;
+  margin: 0.75rem 0 0;
+}
+
+/* Phones: the line runs top to bottom, with names and teams to the right */
+@media (max-width: 560px) {
+  .tracker-header {
+    flex-wrap: wrap;
+  }
+
+  .subway {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .subway-stop,
+  .subway-segment {
+    display: grid;
+    grid-template-columns: var(--node-row) 1fr;
+    column-gap: 0.75rem;
+  }
+
+  .subway-segment {
+    min-height: 1.5rem;
+  }
+
+  .subway-track {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+    align-items: flex-start;
+  }
+
+  .subway-track::before,
+  .subway-stop:first-child .subway-track::before,
+  .subway-stop:last-child .subway-track::before {
+    left: calc(50% - 2px);
+    right: auto;
+    top: -1px;
+    bottom: -1px;
+    width: 4px;
+    height: auto;
+  }
+
+  .subway-stop:first-child .subway-track::before {
+    top: calc(var(--node-row) / 2);
+  }
+
+  .subway-stop:last-child .subway-track::before {
+    bottom: auto;
+    height: calc(var(--node-row) / 2);
+  }
+
+  .subway-node {
+    margin-top: 0.125rem;
+  }
+
+  .subway {
+    padding: 0;
+  }
+
+  .subway-top,
+  .subway-label,
+  .subway-bottom {
+    grid-column: 2;
+    align-items: flex-start;
+    justify-content: flex-start;
+    justify-self: start;
+    padding: 0;
+    margin: 0;
+    min-height: 0;
+  }
+
+  /* Stops: name level with the node; segments: walking teams */
+  .subway-label {
+    grid-row: 1;
+    line-height: var(--node-row);
+  }
+
+  .subway-top {
+    grid-row: 1;
+  }
+
+  .subway-stop .subway-top {
+    display: none;
+  }
+
+  .subway-bottom {
+    grid-row: 2;
+  }
+
+  .subway-teams,
+  .subway-bottom .subway-teams,
+  .subway-top .subway-teams {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    margin: 0.3rem 0 0.5rem;
+  }
+
+  .subway-team {
+    flex-direction: row;
+    gap: 0.35rem;
+    align-items: baseline;
+    max-width: none;
+  }
+}

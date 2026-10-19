@@ -1,0 +1,128 @@
+.skyline {
+  position: relative;
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* The sky above the tallest buildings: the top 36% of the drawing */
+.skyline-sky {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 36%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.site-title {
+  margin: 0;
+  font-family: KirangHaerang;
+  font-weight: normal;
+  /* "Haunted Hunt" is about 5.5em wide, so 13vw leaves the moon clear on phones */
+  font-size: min(13vw, 4.5rem);
+  line-height: 1;
+  color: #2b2420;
+}
+
+.skyline-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.skyline-moon {
+  fill: #f6dca0;
+}
+
+.skyline-far {
+  fill: #c9c0d2;
+}
+
+.skyline-ink,
+.skyline-sutro {
+  fill: #3b3346;
+  stroke: #3b3346;
+  stroke-width: 0;
+}
+
+/* The bridge keeps its International Orange */
+.skyline-bridge {
+  fill: #c0502e;
+}
+
+.skyline-cables {
+  fill: none;
+  stroke: #c0502e;
+  stroke-width: 1.2;
+}
+
+.skyline-cables line {
+  stroke-width: 0.5;
+}
+
+.skyline-windows {
+  fill: #f4b860;
+}
+
+.skyline-sutro {
+  fill: none;
+  stroke-width: 1.2;
+}
+
+.skyline-sutro .skyline-sutro-deck {
+  stroke-width: 2.5;
+}
+
+/* Karl the Fog: two strips of soft white puffs, each twice as wide as the
+   skyline, sliding left by half their width so the loop is seamless */
+.skyline-fog {
+  position: absolute;
+  left: 0;
+  width: 200%;
+  background-repeat: repeat-x;
+  animation: skyline-drift linear infinite;
+}
+
+.skyline-fog-back {
+  bottom: 18%;
+  height: 40%;
+  opacity: 0.55;
+  background-image:
+    radial-gradient(ellipse 18% 50% at 25% 60%, #fff 0%, rgba(255, 255, 255, 0) 70%),
+    radial-gradient(ellipse 22% 40% at 70% 50%, #fff 0%, rgba(255, 255, 255, 0) 70%);
+  background-size: 50% 100%;
+  animation-duration: 90s;
+}
+
+.skyline-fog-front {
+  bottom: -6%;
+  height: 45%;
+  opacity: 0.85;
+  background-image:
+    radial-gradient(ellipse 25% 45% at 15% 70%, #fff 0%, rgba(255, 255, 255, 0) 70%),
+    radial-gradient(ellipse 20% 50% at 55% 60%, #fff 0%, rgba(255, 255, 255, 0) 70%),
+    radial-gradient(ellipse 18% 40% at 88% 75%, #fff 0%, rgba(255, 255, 255, 0) 70%);
+  background-size: 50% 100%;
+  animation-duration: 55s;
+}
+
+@keyframes skyline-drift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skyline-fog {
+    animation: none;
+  }
+}
