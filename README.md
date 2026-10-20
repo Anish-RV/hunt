@@ -7,7 +7,7 @@ This website is deployed via a combination of Cloudflare Workers and GitHub Page
 
 The frontend never holds any secrets; they live only in Cloudflare.
 
-For how the hunt itself is run and scored (clues, check-ins, easy/hard mode), see [docs/how-the-hunt-works.md](docs/how-the-hunt-works.md).
+For how the hunt itself is run and scored (clues, check-ins, chill/competitive mode), see [docs/how-the-hunt-works.md](docs/how-the-hunt-works.md).
 
 ## Getting access
 

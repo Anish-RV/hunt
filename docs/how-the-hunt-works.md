@@ -13,13 +13,13 @@ Context for anyone working on the site or the scoring sheet. The scoring itself 
 - At each clue, teams **check in** when they arrive and **check out** when they leave, using that clue's Google Form ("Fall 2026 Scavenger Hunt Clue #1" through "#4"). This tells organizers where every team is.
 - Each form writes to its own responses sheet (e.g. "Fall 2026 Scavenger Hunt Clue #2 (Responses)").
 
-Each form response records: timestamp, team name, team number, check-in or check-out, mode (Easy/Hard), and bonus time earned in minutes.
+Each form response records: timestamp, team name, team number, check-in or check-out, mode (Chill/Competitive), and bonus time earned in minutes.
 
-## Easy vs. hard mode
+## Chill vs. Competitive mode
 
-- Teams play each clue in **Easy** or **Hard** mode.
-- **Easy mode adds 30 minutes** to a team's time for that clue. Hard mode adds nothing.
-- A team can switch from Hard to Easy partway through a clue, so **the mode at check-out is the one that counts** for that clue.
+- Teams play each clue in **Chill** or **Competitive** mode.
+- **Chill mode adds 30 minutes** to a team's time for that clue. Competitive mode adds nothing.
+- A team can switch from Competitive to Chill partway through a clue, so **the mode at check-out is the one that counts** for that clue.
 
 Each clue form asks for the mode at **both** check-in (so teams commit to a choice) and check-out. The scoring sheet should use the check-out answer, falling back to the check-in answer if check-out is blank.
 
@@ -46,7 +46,7 @@ The leaderboard comes from the `leaderboard_external` tab of the "Fall 2026 Hunt
 |---|---|
 | Rank | Position on the leaderboard |
 | Name | Team name |
-| Total Adjusted Time | Total Time + 30 min per Easy clue − bonus minutes, in decimal minutes (e.g. `373.7`) |
+| Total Adjusted Time | Total Time + 30 min per Chill clue − bonus minutes, in decimal minutes (e.g. `373.7`) |
 | Total Time | Actual time spent, as `H:MM:SS` |
 | # of Clues Done | Clues completed |
 | Wave | Which start wave the team was in |

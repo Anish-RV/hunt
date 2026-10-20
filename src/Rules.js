@@ -27,14 +27,14 @@ const SECTIONS: Array<{ title: string, items: Array<React.Node> }> = [
         <strong>Check in</strong> when you arrive and <strong>check out</strong> when you leave,
         using that stop's form.
       </>,
-      <>Choose easy or hard when you check in. You can still switch when you check out.</>,
+      <>Choose chill or competitive when you check in. You can still switch when you check out.</>,
     ],
   },
   {
-    title: 'Easy vs. hard',
+    title: 'Chill vs. Competitive',
     items: [
       <>
-        <strong>Easy mode adds 30 minutes</strong> to your time for that stop. Hard mode adds
+        <strong>Chill mode adds 30 minutes</strong> to your time for that stop. Competitive mode adds
         nothing.
       </>,
       <>The mode you choose at check-out is the one that counts.</>,
@@ -48,7 +48,7 @@ const SECTIONS: Array<{ title: string, items: Array<React.Node> }> = [
     title: 'Scoring',
     items: [
       <>Teams are ranked by most stops completed, then lowest adjusted time.</>,
-      <>Adjusted time is your real time, plus easy-mode penalties, minus any bonuses.</>,
+      <>Adjusted time is your real time, plus chill-mode penalties, minus any bonuses.</>,
     ],
   },
 ];
