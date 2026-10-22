@@ -1,10 +1,12 @@
 /**
- * Works out where every team is, from the sheet's Teams, Form Data, and
- * Finish Data tabs. Only the computed positions are sent to the site, never
- * the raw form responses.
+ * Works out where every team is, from the sheet's Teams, Check-In Data, Form
+ * Data, and Finish Data tabs. Only the computed positions are sent to the
+ * site, never the raw form responses.
  *
- * Each team's position comes from its most recent event:
- *   - no events                  -> not_started
+ * Teams only appear once they've checked in at the start (or, if they skipped
+ * that, once they have a clue or finish event). Each team's position comes
+ * from its most recent event:
+ *   - checked in at the start    -> not_started, with the check-in time
  *   - checked in at clue N       -> at clue N
  *   - checked out of clue N      -> traveling to the next clue on its route
  *   - submitted the finish form  -> finished
@@ -16,6 +18,15 @@ export const ROUTES = {
   vampires: [1, 2, 3, 4],
   zombies: [3, 2, 1, 4],
 };
+
+// Accepts "Vampire" as well as "Vampires", since the sheet says either.
+// Returns the ROUTES key, or the cell as written if it isn't a direction.
+function parseDirection(value) {
+  const text = String(value ?? '').trim().toLowerCase();
+  if (ROUTES[text]) return text;
+  if (ROUTES[`${text}s`]) return `${text}s`;
+  return text;
+}
 
 // Returns the index of the first header matching the pattern, or -1
 function findColumn(headers, pattern) {
@@ -60,10 +71,30 @@ export function parseTeams(rows) {
     .map((row) => ({
       number: parseTeamNumber(row[numberCol]),
       name: String(row[nameCol] ?? '').trim(),
-      direction: String(row[directionCol] ?? '').trim(),
+      direction: parseDirection(row[directionCol]),
       wave: String(row[waveCol] ?? '').trim(),
     }))
     .filter((team) => team.number != null);
+}
+
+// Check-In Data tab (the start-of-hunt check-in form): header row, then one
+// row per submission. Returns when each team last checked in. (The wave a
+// team picks there reaches the Teams tab through a sheet formula.)
+export function parseStartCheckIns(rows) {
+  const [headers = [], ...data] = rows;
+  const timeCol = findColumn(headers, /timestamp/i);
+  const numberCol = findColumn(headers, /team\s*(#|number)/i);
+  if (timeCol < 0 || numberCol < 0) return new Map();
+
+  const latestByTeam = new Map();
+  for (const row of data) {
+    const team = parseTeamNumber(row[numberCol]);
+    const time = parseTimestamp(row[timeCol]);
+    if (team != null && time != null && time >= (latestByTeam.get(team) ?? -Infinity)) {
+      latestByTeam.set(team, time);
+    }
+  }
+  return latestByTeam;
 }
 
 // Form Data tab: row 1 labels each clue's block of columns ("[merged] Clue 2"),
@@ -120,9 +151,9 @@ export function parseFinishEvents(rows) {
     .filter((e) => e.team != null && e.time != null);
 }
 
-function positionFor(team, latest) {
-  const route = ROUTES[team.direction.toLowerCase()] ?? null;
-  if (!latest) return { state: 'not_started' };
+function positionFor(team, latest, checkedInAt) {
+  const route = ROUTES[team.direction] ?? null;
+  if (!latest) return { state: 'not_started', since: formatTimeOfDay(checkedInAt) };
   const since = formatTimeOfDay(latest.time);
   if (latest.type === 'finish') return { state: 'finished', since };
   if (latest.type === 'in') return { state: 'at', clue: latest.clue, since };
@@ -133,8 +164,9 @@ function positionFor(team, latest) {
   return { state: 'traveling', from: latest.clue, to, since };
 }
 
-export function buildTracker({ teamsRows, formRows, finishRows }) {
+export function buildTracker({ teamsRows, checkInRows = [], formRows, finishRows }) {
   const teams = parseTeams(teamsRows);
+  const checkIns = parseStartCheckIns(checkInRows);
   const events = [...parseClueEvents(formRows), ...parseFinishEvents(finishRows)];
 
   const latestByTeam = new Map();
@@ -147,9 +179,11 @@ export function buildTracker({ teamsRows, formRows, finishRows }) {
 
   return {
     routes: ROUTES,
-    teams: teams.map((team) => ({
-      ...team,
-      ...positionFor(team, latestByTeam.get(team.number)),
-    })),
+    teams: teams
+      .filter((team) => checkIns.has(team.number) || latestByTeam.has(team.number))
+      .map((team) => ({
+        ...team,
+        ...positionFor(team, latestByTeam.get(team.number), checkIns.get(team.number)),
+      })),
   };
 }

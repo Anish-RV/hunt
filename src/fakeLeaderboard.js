@@ -111,7 +111,8 @@ function trackerTeam(team: FakeTeam): TrackerTeam {
   const route = ROUTES[team.direction.toLowerCase()];
   const done = team.cluesDone;
   if (done === 0) {
-    return { ...base, state: 'not_started' };
+    // Checked in at the start
+    return { ...base, state: 'not_started', since: randomTime() };
   }
   if (done === route.length && random() < 0.5) {
     return { ...base, state: 'finished', since: randomTime() };
@@ -126,11 +127,8 @@ function trackerTeam(team: FakeTeam): TrackerTeam {
 
 export const FAKE_TRACKER: TrackerData = {
   routes: ROUTES,
-  teams: [
-    ...FAKE_TEAMS.map(trackerTeam),
-    // Signed up but not yet given a direction or wave
-    { number: FAKE_TEAMS.length + 1, name: 'Late Arrivals', direction: '', wave: '', state: 'not_started' },
-  ],
+  // Teams that haven't checked in yet aren't sent, so every fake team has
+  teams: FAKE_TEAMS.map(trackerTeam),
 };
 
 // Photo challenge standings, in the shape of the sheet's Photo Leaderboard tab

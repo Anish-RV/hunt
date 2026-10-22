@@ -12,9 +12,11 @@
 import { parseTeams, parseTimestamp, formatTimeOfDay } from "./tracker.js";
 
 // Newest photos sent to the site; it renders them a few at a time as visitors
-// scroll. Every viewer re-fetches this list each minute (about 250 bytes per
-// photo), so the cap keeps that small on cellular data.
-const MAX_PHOTOS = 1000;
+// scroll. The cap keeps the per-minute refresh small on cellular data (about
+// 250 bytes per photo), and keeps a fresh worker instance's first request,
+// which encrypts every photo's link (~21 microseconds each), under the
+// Cloudflare free plan's 10 ms CPU limit. On the paid plan it can go to 1000+.
+const MAX_PHOTOS = 300;
 export const PHOTO_LINK_TTL_MS = 2 * 60 * 60 * 1000;
 const HOUR_MS = 60 * 60 * 1000;
 

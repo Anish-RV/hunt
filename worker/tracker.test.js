@@ -42,7 +42,8 @@ const TEAMS = [
   ['30', 'Baula', 'Vampires', '1'],
   ['3', 'Linda', 'Zombies', '1'],
   ['2', 'Anish', 'Vampires', '2'],
-  ['6', 'Harini', 'Vampires', '2'],
+  // Singular, as the registration sheet writes it
+  ['6', 'Harini', 'Vampire', '2'],
   ['4', 'Shayna', 'Zombies', '3'],
 ];
 
@@ -119,16 +120,38 @@ test('places each team at its latest event', () => {
   assert.equal(teams.Linda.to, 'final');
 
   // Vampires go 1 -> 2 -> 3 -> 4
+  assert.equal(teams.Harini.direction, 'vampires');
   assert.equal(teams.Harini.to, 2);
 
-  // No events yet
-  assert.equal(teams.Baula.state, 'not_started');
+  // No check-in or events yet: not shown
+  assert.equal(teams.Baula, undefined);
 });
 
 test('the finish form marks a team finished', () => {
   const finish = [...FINISH, ['10/17/2026 18:30:00', '', 'Linda', '3']];
   const teams = byName(buildTracker({ teamsRows: TEAMS, formRows: FORM, finishRows: finish }));
   assert.equal(teams.Linda.state, 'finished');
+});
+
+// Mirrors the Check-In Data tab (the start-of-hunt check-in form)
+const CHECK_IN = [
+  ['Timestamp', 'Team number', 'Is everyone on the team here? ', 'What wave are you in?'],
+  ['10/17/2026 12:05:10', '30', 'No', '1'],
+  ['10/17/2026 12:20:44', '30', 'Yes', '2'], // checked in again: latest counts
+  ['10/17/2026 12:01:00', '4', 'Yes', '1'],
+  ['', '2', 'Yes', '1'], // no timestamp: ignored
+];
+
+test('the start check-in form shows a team checked in at the start', () => {
+  const teams = byName(
+    buildTracker({ teamsRows: TEAMS, checkInRows: CHECK_IN, formRows: FORM, finishRows: FINISH })
+  );
+  assert.equal(teams.Baula.state, 'not_started');
+  assert.equal(teams.Baula.since, '12:20 PM');
+
+  // Clue events still win over the start check-in
+  assert.equal(teams.Shayna.state, 'traveling');
+  assert.equal(teams.Shayna.since, '3:50 PM');
 });
 
 test('missing tabs produce an empty tracker instead of throwing', () => {

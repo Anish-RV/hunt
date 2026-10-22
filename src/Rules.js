@@ -18,6 +18,10 @@ const SECTIONS: Array<{ title: string, items: Array<React.Node> }> = [
         Teams are split into two directions, <strong>🧛 Vampires</strong> and{' '}
         <strong>🧟 Zombies</strong>, which visit the stops in a different order.
       </>,
+      <>
+        Your team number sets your direction: <strong>odd numbers are Vampires</strong>,{' '}
+        <strong>even numbers are Zombies</strong>.
+      </>,
     ],
   },
   {

@@ -13,6 +13,8 @@
  *   SHEET_RANGE          - e.g. "Leaderboard!A1:D100" (defaults below)
  *   TEAMS_RANGE, FORM_DATA_RANGE, FINISH_RANGE
  *                        - tabs the live tracker reads (see tracker.js)
+ *   CHECK_IN_RANGE       - the start-of-hunt check-in form, also for the tracker
+ *                          (optional; without it, check-ins just aren't shown)
  *   PHOTO_LEADERBOARD_RANGE
  *                        - the photo challenge standings
  *   PHOTO_DATA_RANGE     - photo submissions, for the photo stream (see photos.js;
@@ -150,6 +152,7 @@ async function fetchSiteData(env) {
   // request; a tab is only requested if its range is configured
   const optional = {
     teams: env.TEAMS_RANGE,
+    checkIn: env.CHECK_IN_RANGE,
     form: env.FORM_DATA_RANGE,
     finish: env.FINISH_RANGE,
     photoLeaderboard: env.PHOTO_LEADERBOARD_RANGE,
@@ -168,7 +171,12 @@ async function fetchSiteData(env) {
         leaderboard,
         tracker:
           tabs.teams && tabs.form && tabs.finish
-            ? buildTracker({ teamsRows: tabs.teams, formRows: tabs.form, finishRows: tabs.finish })
+            ? buildTracker({
+                teamsRows: tabs.teams,
+                checkInRows: tabs.checkIn ?? [],
+                formRows: tabs.form,
+                finishRows: tabs.finish,
+              })
             : null,
         photoLeaderboard: tabs.photoLeaderboard ?? null,
         // File IDs stay server-side; signPhotoStream turns them into links

@@ -65,6 +65,7 @@ function sinceText(team: TrackerTeam): ?string {
   if (!team.since) return null;
   if (team.state === 'traveling') return `left ${team.since}`;
   if (team.state === 'finished') return `finished ${team.since}`;
+  if (team.state === 'not_started') return `checked in ${team.since}`;
   return `arrived ${team.since}`;
 }
 
