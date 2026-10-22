@@ -44,6 +44,17 @@ const SECTIONS: Array<{ title: string, items: Array<React.Node> }> = [
       <>The mode you choose at check-out is the one that counts.</>,
     ],
   },
+  // Don't describe the bonuses themselves, so teams can't start early
+  {
+    title: 'Bonuses',
+    items: [
+      <>Some stops have bonus challenges that take time off your clock.</>,
+      <>
+        There's also a photo challenge. The team that wins it gets <strong>30 minutes off</strong>{' '}
+        its time.
+      </>,
+    ],
+  },
   {
     title: 'Finishing',
     items: [<>At the final location, submit the finish form to stop your clock.</>],

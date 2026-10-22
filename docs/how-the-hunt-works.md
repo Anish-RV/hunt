@@ -59,7 +59,7 @@ Photos are never linked from Drive directly. The worker serves a resized preview
 
 ## Rules tab
 
-A quick reference for teams during the hunt (they only get the site on hunt day): waves and directions, checking in and out, chill vs. competitive, finishing, scoring, and an "Open WhatsApp" help button. It never names clues or locations. The WhatsApp button uses `whatsapp://send?text=%20`; other links that failed on Android Chrome are listed in a comment in `src/Rules.js`.
+A quick reference for teams during the hunt (they only get the site on hunt day): waves and directions, checking in and out, chill vs. competitive, bonuses (some stops have bonus challenges, and the photo challenge winner gets 30 minutes off; neither is described), finishing, scoring, and an "Open WhatsApp" help button. It never names clues or locations. The WhatsApp button uses `whatsapp://send?text=%20`; other links that failed on Android Chrome are listed in a comment in `src/Rules.js`.
 
 ## Scoring
 
@@ -99,7 +99,7 @@ Before the hunt:
 - [ ] Photo Leaderboard: add bird totals and rank by them.
 - [ ] WhatsApp Groups tab (registration sheet): every team has a team #, name, and direction. The Teams tab picks them up automatically.
 - [ ] Clear the test rows from the start check-in form (Check-In Data).
-- [ ] Decide how the photo leader bonus works (the sheet has 30 minutes) and add it to the Rules tab.
+- [ ] Decide when the photo leader bonus kicks in (Calculations "Photo bonus kicks in"). The Rules tab says the photo challenge winner gets 30 minutes off, without describing the challenge, so teams can't start early.
 - [ ] Sharing: set the photo uploads folder (currently "anyone with the link can edit") and the leaderboard sheet (currently "anyone with the link can view") to Restricted. The service account and organizers keep their own access.
 - [ ] Optional: add a Hide column to Photo Data for judges.
 
