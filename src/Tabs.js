@@ -7,9 +7,10 @@ import Tracker from './Tracker';
 import Photos from './Photos';
 import type { StreamPhoto } from './Photos';
 import Rules from './Rules';
+import About from './About';
 import type { TrackerData } from './Tracker';
 
-type TabKey = 'leaderboard' | 'tracker' | 'photos' | 'rules';
+type TabKey = 'leaderboard' | 'tracker' | 'photos' | 'rules' | 'about';
 
 type Props = {
   leaderboardRows: Array<Array<string>>,
@@ -63,6 +64,14 @@ export default function Tabs({
         >
           Rules
         </button>
+        <button
+          role="tab"
+          aria-selected={activeTab === 'about'}
+          className={activeTab === 'about' ? 'tab tab-active' : 'tab'}
+          onClick={() => setActiveTab('about')}
+        >
+          About
+        </button>
       </div>
 
       <div className="tabs-panel">
@@ -70,6 +79,7 @@ export default function Tabs({
         {activeTab === 'tracker' && <Tracker tracker={tracker} updatedAt={updatedAt} />}
         {activeTab === 'photos' && <Photos photoLeaderboard={photoLeaderboard} photoStream={photoStream} />}
         {activeTab === 'rules' && <Rules />}
+        {activeTab === 'about' && <About />}
       </div>
     </div>
   );

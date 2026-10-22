@@ -82,15 +82,6 @@ export default function Rules(): React.MixedElement {
           Open WhatsApp
         </a>
       </section>
-
-      {/* Formerly the History tab */}
-      <section className="rules-about">
-        <h2 className="rules-title">About the hunt</h2>
-        <p>
-          It all started with 2 friends who wanted to force their friends to explore the beautiful
-          city of San Francisco...
-        </p>
-      </section>
     </div>
   );
 }

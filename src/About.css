@@ -1,0 +1,78 @@
+.about {
+  color: #2b2420;
+  text-align: left;
+  max-width: 560px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+.about-section + .about-section {
+  margin-top: 1.6rem;
+}
+
+.about-title {
+  font-family: KirangHaerang;
+  font-weight: normal;
+  font-size: 1.45rem;
+  margin: 0 0 0.35rem;
+}
+
+.about p {
+  margin: 0;
+}
+
+/* Stat callout, same warm-highlight treatment as the Rules "Need help?" box */
+.about-stats {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 1.1rem;
+  padding: 1rem 0.75rem;
+  border-radius: 10px;
+  background: #fbf1d9;
+  border: 1px solid #ecd9a8;
+}
+
+.about-stat {
+  text-align: center;
+}
+
+.about-stat-number {
+  font-family: KirangHaerang;
+  font-size: 1.7rem;
+  color: #c08a28;
+  line-height: 1.1;
+}
+
+.about-stat-label {
+  font-size: 0.85rem;
+  color: #8c8275;
+  margin-top: 0.15rem;
+}
+
+.about-stats-caption {
+  margin-top: 0.75rem;
+  color: #8c8275;
+  font-size: 0.95rem;
+}
+
+/* Organizer pills */
+.about-organizers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+
+.about-organizer-tag {
+  display: inline-block;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  background: #f7f5ed;
+  border: 1px solid #ddd6c4;
+  font-size: 0.9rem;
+}
+
+.about-organizer-note {
+  color: #8c8275;
+  font-size: 0.82rem;
+}
