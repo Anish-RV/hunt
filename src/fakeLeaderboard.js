@@ -133,17 +133,17 @@ export const FAKE_TRACKER: TrackerData = {
 
 // Photo challenge standings, in the shape of the sheet's Photo Leaderboard tab
 // (including the organizer-only columns the site hides)
-const PHOTO_COUNTS: Array<{ team: FakeTeam, photos: number }> = FAKE_TEAMS.slice(0, 15)
-  .map((team) => ({ team, photos: randomInt(0, 9) }))
-  .sort((a, b) => b.photos - a.photos);
+const BIRD_COUNTS: Array<{ team: FakeTeam, birds: number }> = FAKE_TEAMS.slice(0, 15)
+  .map((team) => ({ team, birds: randomInt(0, 25) }))
+  .sort((a, b) => b.birds - a.birds);
 
 export const FAKE_PHOTO_LEADERBOARD_ROWS: Array<Array<string>> = [
-  ['Rank', 'Team #', 'Team Name', '# Photos', 'Photos Removed by Judge', 'Last Submission', 'Gets Photo Bonus?', 'Wave'],
-  ...PHOTO_COUNTS.map(({ team, photos }, i) => [
+  ['Rank', 'Team #', 'Team Name', '# Birds', 'Birds Removed by Judge', 'Last Submission', 'Gets Photo Bonus?', 'Wave'],
+  ...BIRD_COUNTS.map(({ team, birds }, i) => [
     String(i + 1),
     String(team.number),
     team.name,
-    String(photos),
+    String(birds),
     String(randomInt(0, 1)),
     randomTime(),
     i === 0 ? 'YES' : '',

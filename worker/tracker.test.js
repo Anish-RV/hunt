@@ -99,6 +99,12 @@ test('reads events from every clue block', () => {
   assert.equal(events.length, 10);
 });
 
+test('a response with no check-in/out answer counts as a check-in', () => {
+  // Clue 4's form has no check-out; the finish form ends it
+  const [event] = parseClueEvents(formData([{ clue: 4, rows: [['10/17/2026 17:00:00', '6', '']] }]));
+  assert.deepEqual(event, { team: 6, clue: 4, type: 'in', time: Date.UTC(2026, 9, 17, 17, 0, 0) });
+});
+
 test('places each team at its latest event', () => {
   const teams = byName(buildTracker({ teamsRows: TEAMS, formRows: FORM, finishRows: FINISH }));
 

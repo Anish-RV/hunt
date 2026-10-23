@@ -77,11 +77,14 @@ export function parsePhotoStream(photoRows, teamsRows) {
 
     const number = parseInt(String(row[numberCol] ?? "").trim(), 10);
     const birds = birdsCol >= 0 ? String(row[birdsCol] ?? "").trim() : "";
-    parseDriveIds(row[linksCol]).forEach((fileId, i) => {
+    const fileIds = parseDriveIds(row[linksCol]);
+    fileIds.forEach((fileId, i) => {
       photos.push({
         fileId,
         team: teamNames.get(number) || (Number.isFinite(number) ? `Team ${number}` : "Unknown team"),
-        birds: birds === "" ? null : birds,
+        // The count is for the whole submission, so it goes only on the photo
+        // the feed shows first (the last uploaded), not repeated on each
+        birds: birds === "" || i !== fileIds.length - 1 ? null : birds,
         since: formatTimeOfDay(time),
         // Keeps photos from one submission in upload order
         sortKey: time * 100 + i,

@@ -10,7 +10,7 @@ Context for anyone working on the site or the scoring sheet. The scoring itself 
   - **Zombies:** Clue 3 → 2 → 1 → 4 → final location
 
   Clue 4 leads every team to the final location.
-- At each clue, teams **check in** when they arrive and **check out** when they leave, using that clue's Google Form ("Fall 2026 Scavenger Hunt Clue #1" through "#4"). This tells organizers where every team is.
+- At each clue, teams **check in** when they arrive and **check out** when they leave, using that clue's Google Form ("Fall 2026 Scavenger Hunt Clue #1" through "#4"). This tells organizers where every team is. **Clue 4 has no check-out:** teams only check in there, Clue 4's mode is the one chosen at check-in, and the finish form ends Clue 4 (Calculations column AE). Any response that isn't a check-out counts as a check-in, in both the sheet and the tracker.
 - Each form writes to its own responses sheet (e.g. "Fall 2026 Scavenger Hunt Clue #2 (Responses)"); the leaderboard sheet's **Form Data** tab merges all four. Each clue's block in Form Data has the same six columns (timestamp, team name, team number, check-in/out, mode, bonus minutes), matched to the form's questions by name, so the forms can ask their questions in any order. The mode column takes the check-out answer ("…mode did you finish…") and falls back to the check-in answer ("…mode are you participating…"); the bonus column takes the first question with "bonus" in its name. Bonuses by clue (amounts are settings in Calculations):
   - **Clue 1:** "Did you receive a bonus?"; any answer starting with "Y" is worth **30 minutes** (E4).
   - **Clue 3:** "Bonus photo!" upload; any uploaded photo is worth **10 minutes** (E5).
@@ -48,18 +48,18 @@ Stops are labeled **Stop 1–4 in each direction's own order** (so for Zombies, 
 
 ## Photo challenge
 
-Teams submit photos through the photo challenge form, which saves uploads to the "Scav Hunt Photo Challenge (File responses)" Drive folder and writes a row (with Drive links) to the leaderboard sheet's **Photo Data** tab.
+Teams submit photos through the photo challenge form, which saves uploads to the "Scav Hunt Photo Challenge (File responses)" Drive folder and writes a row (with Drive links) to the "Scav Hunt Photo Challenge (Responses)" sheet. The challenge is counting birds, not photos: each submission asks "How many birds are in your photo below?", a team's score is the total birds across its submissions (minus any "Birds to remove" judges enter in Photo Review), and the team with the most birds gets the 30-minute photo leader bonus. Two tabs in the leaderboard sheet import that sheet separately: **Photo Calc** (with Photo Review and Photo Leaderboard, for the bird standings) and **Photo Data** (a plain import the worker reads for the feed; don't delete it, or the tracker and photos fail to load too).
 
 The site's **Photos** tab has two views:
 
-- **Feed:** the newest photos (up to 300), like a social media feed, loaded as you scroll. Built by the worker (`worker/photos.js`) from Photo Data and the Teams tab, named by team number. Picked up automatically if present: a column whose header contains "bird" (shown as "🐦 3 birds"), and a **Hide** column judges can set to TRUE/yes/x to pull a photo from the feed.
-- **Standings:** the **Photo Leaderboard** tab, minus organizer-only columns (team #, photos removed by judge, photo bonus flag, wave, last submission).
+- **Feed:** the newest photos (up to 300), like a social media feed, loaded as you scroll. Built by the worker (`worker/photos.js`) from Photo Data and the Teams tab, named by team number. Picked up automatically if present: a column whose header contains "bird" (shown once per submission as "🐦 3 birds", on its first photo in the feed), and a **Hide** column judges can set to TRUE/yes/x to pull a photo from the feed.
+- **Standings:** the **Photo Leaderboard** tab, ranked by birds, minus organizer-only columns (team #, birds removed by judge, photo bonus flag, wave, last submission).
 
 Photos are never linked from Drive directly. The worker serves a resized preview (about 720px, ~50–110 KB vs. 2–4.5 MB originals) at `/photo/<token>`, where the token is the file ID and an expiry encrypted with the `PHOTO_SIGNING_SECRET` worker secret. Only visitors past the password get tokens, they expire after 2–3 hours, and they don't reveal the file ID. The service account needs **Viewer** access to the uploads folder, and the Google Cloud project needs the **Drive API** enabled.
 
 ## Rules tab
 
-A quick reference for teams during the hunt (they only get the site on hunt day): waves and directions, checking in and out, chill vs. competitive, bonuses (some stops have bonus challenges, and the photo challenge winner gets 30 minutes off; neither is described), finishing, scoring, and an "Open WhatsApp" help button. It never names clues or locations. The WhatsApp button uses `whatsapp://send?text=%20`; other links that failed on Android Chrome are listed in a comment in `src/Rules.js`.
+A quick reference for teams during the hunt (they only get the site on hunt day): waves and directions, checking in and out (including chill vs. competitive), finishing, and scoring (including bonuses: some stops have bonus challenges, and the photo challenge winner gets 30 minutes off; neither is described), and an "Open WhatsApp" help button. It never names clues or locations. The WhatsApp button uses `whatsapp://send?text=%20`; other links that failed on Android Chrome are listed in a comment in `src/Rules.js`.
 
 ## Scoring
 
@@ -95,13 +95,10 @@ Before the hunt:
 
 - [ ] Clear the test-run responses from the photo form. The four clue forms' and the finish form's response sheets were cleared on Oct 21; clear them again after any test submissions. Delete rows in the forms' own "(Responses)" sheets: the leaderboard sheet's Form Data and Finish Data tabs are imports and can't be edited. (Check-In Data is the start form's own responses tab, so delete its test rows there directly.)
 - [ ] Clue forms: after the Check-In section, each form goes to Submit (mode is now asked at check-in and check-out on all four).
-- [ ] Photo form: add the bird count question; remove the test run's "Which AI companies…" question.
-- [ ] Photo Leaderboard: add bird totals and rank by them.
 - [ ] WhatsApp Groups tab (registration sheet): every team has a team #, name, and direction. The Teams tab picks them up automatically.
 - [ ] Clear the test rows from the start check-in form (Check-In Data).
 - [ ] Decide when the photo leader bonus kicks in (Calculations "Photo bonus kicks in"). The Rules tab says the photo challenge winner gets 30 minutes off, without describing the challenge, so teams can't start early.
 - [ ] Sharing: set the photo uploads folder (currently "anyone with the link can edit") and the leaderboard sheet (currently "anyone with the link can view") to Restricted. The service account and organizers keep their own access.
-- [ ] Optional: add a Hide column to Photo Data for judges.
 
 Testing:
 

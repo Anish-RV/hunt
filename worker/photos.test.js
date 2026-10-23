@@ -46,9 +46,9 @@ test('lists photos newest first, named by the Teams tab', () => {
     stream.map((p) => [p.fileId, p.team, p.birds]),
     [
       ['unknownTeam1', 'Team 99', '1'],
-      // Two photos from one submission keep their upload order
+      // Two photos from one submission: the bird count shows once
       ['1FJSMye5gkJLm', 'Anne', '3'],
-      ['1n0t7lRh5R43X', 'Anne', '3'],
+      ['1n0t7lRh5R43X', 'Anne', null],
       ['1lHtzQQCwTFku', 'Anne', null],
       ['1qbWk1DW1B_Zw', 'Varsha', '2'],
     ]

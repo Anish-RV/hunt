@@ -64,6 +64,14 @@ The worker's tracker and photo logic has tests:
 node --test worker/tracker.test.js worker/photos.test.js
 ```
 
+To type-check the frontend with Flow:
+
+```sh
+npx flow check
+```
+
+Flow no longer ships browser types (`fetch`, DOM elements), so they're checked in under `flow-typed/environments/`, as listed in `flow-typed.config.json`. To reinstall them, run `npx flow-typed install --skip --ignoreDeps dev bundled peer`, then delete the `flow-typed/npm/` folder it also creates.
+
 To run fully offline with plain `npx wrangler dev`, put the secrets in `worker/.dev.vars` (one `NAME=value` per line). This file is gitignored; never commit it.
 
 ## Secrets

@@ -126,8 +126,10 @@ export function parseClueEvents(rows) {
       const time = parseTimestamp(row[start + timeCol]);
       const team = parseTeamNumber(row[start + numberCol]);
       const typeText = String(row[start + typeCol] ?? '').toLowerCase();
-      const type = typeText.includes('out') ? 'out' : typeText.includes('in') ? 'in' : null;
-      if (time != null && team != null && type) {
+      // Anything that isn't a check-out is a check-in, since Clue 4's form has
+      // no check-out (the finish form ends it) and may not ask at all
+      const type = typeText.includes('out') ? 'out' : 'in';
+      if (time != null && team != null) {
         events.push({ team, clue, type, time });
       }
     }

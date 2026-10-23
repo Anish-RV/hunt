@@ -31,39 +31,36 @@ const SECTIONS: Array<{ title: string, items: Array<React.Node> }> = [
         <strong>Check in</strong> when you arrive and <strong>check out</strong> when you leave,
         using that stop's form.
       </>,
-      <>Choose chill or competitive when you check in. You can still switch when you check out.</>,
-    ],
-  },
-  {
-    title: 'Chill vs. Competitive',
-    items: [
+      <>
+        Choose chill or competitive when you check in. You can still switch when you check out. The
+        mode you choose at check-out is the one that counts.
+      </>,
       <>
         <strong>Chill mode adds 30 minutes</strong> to your time for that stop. Competitive mode adds
         nothing.
-      </>,
-      <>The mode you choose at check-out is the one that counts.</>,
-    ],
-  },
-  // Don't describe the bonuses themselves, so teams can't start early
-  {
-    title: 'Bonuses',
-    items: [
-      <>Some stops have bonus challenges that take time off your clock.</>,
-      <>
-        There's also a photo challenge. The team that wins it gets <strong>30 minutes off</strong>{' '}
-        its time.
       </>,
     ],
   },
   {
     title: 'Finishing',
-    items: [<>At the final location, submit the finish form to stop your clock.</>],
+    items: [
+      <>Your last stop's clue leads you to the final location.</>,
+      <>
+        <strong>Submit the finish form as soon as you arrive.</strong> Your clock stops when you
+        submit, not when the whole team gets there or once you've settled in.
+      </>,
+    ],
   },
   {
     title: 'Scoring',
     items: [
       <>Teams are ranked by most stops completed, then lowest adjusted time.</>,
       <>Adjusted time is your real time, plus chill-mode penalties, minus any bonuses.</>,
+      // Don't describe the bonuses themselves, so teams can't start early
+      <>
+        <strong>Bonuses:</strong> some stops have bonus challenges that take time off your clock,
+        and the team that wins the photo challenge gets <strong>30 minutes off</strong>.
+      </>,
     ],
   },
 ];

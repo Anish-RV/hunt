@@ -164,7 +164,7 @@ export default function PasswordGate(): React.MixedElement {
     return () => clearInterval(interval);
   }, [isUnlocked]);
 
-  function handleUnlock(e: SyntheticEvent<HTMLFormElement>) {
+  function handleUnlock(e: { preventDefault(): void, ... }) {
     e.preventDefault();
     unlock(password, false);
   }
