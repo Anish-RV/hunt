@@ -64,9 +64,13 @@ export default {
       "Access-Control-Allow-Headers": "Content-Type",
     };
 
-    // CORS preflight
+    // CORS preflight. Max-Age lets browsers skip it on later refreshes (Chrome
+    // caps it at 2 hours, Safari at 10 minutes), roughly halving requests
+    // against the free plan's daily limit.
     if (request.method === "OPTIONS") {
-      return new Response(null, { headers: corsHeaders });
+      return new Response(null, {
+        headers: { ...corsHeaders, "Access-Control-Max-Age": "86400" },
+      });
     }
 
     // Photo previews: the token in the path is the proof of access
