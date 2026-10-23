@@ -1,7 +1,8 @@
 // @flow
 
 import './Tabs.css';
-import React, { useState } from 'react';
+import React from 'react';
+import { useLocation, useNavigate } from 'react-router';
 import Leaderboard from './Leaderboard';
 import Tracker from './Tracker';
 import Photos from './Photos';
@@ -11,6 +12,16 @@ import About from './About';
 import type { TrackerData } from './Tracker';
 
 type TabKey = 'leaderboard' | 'tracker' | 'photos' | 'rules' | 'about';
+
+const TAB_KEYS: Array<TabKey> = ['leaderboard', 'tracker', 'photos', 'rules', 'about'];
+
+// The open tab lives in the URL's hash (e.g. /#tracker), so reloading keeps
+// it, links can point at a tab, and Back steps through the tabs visited. A
+// hash rather than a path because GitHub Pages only serves the home page.
+function tabFromHash(hash: string): TabKey {
+  const key = hash.replace(/^#/, '');
+  return TAB_KEYS.find((tab) => tab === key) ?? 'leaderboard';
+}
 
 type Props = {
   leaderboardRows: Array<Array<string>>,
@@ -27,7 +38,12 @@ export default function Tabs({
   photoStream,
   updatedAt,
 }: Props): React.MixedElement {
-  const [activeTab, setActiveTab] = useState<TabKey>('leaderboard');
+  const location = useLocation();
+  const navigate = useNavigate();
+  const activeTab = tabFromHash(location.hash);
+  function setActiveTab(tab: TabKey) {
+    if (tab !== activeTab) navigate({ hash: tab });
+  }
 
   return (
     <div className="tabs">
