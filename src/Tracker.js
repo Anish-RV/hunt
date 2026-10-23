@@ -60,17 +60,7 @@ function teamsLeaving(teams: Array<TrackerTeam>, from: Stop): Array<TrackerTeam>
   return teams.filter((team) => team.state === 'traveling' && team.from === from);
 }
 
-// Says what the time means, so markers don't rely on color alone
-function sinceText(team: TrackerTeam): ?string {
-  if (!team.since) return null;
-  if (team.state === 'traveling') return `left ${team.since}`;
-  if (team.state === 'finished') return `finished ${team.since}`;
-  if (team.state === 'not_started') return `checked in ${team.since}`;
-  return `arrived ${team.since}`;
-}
-
 function TeamMarker({ team, walking }: { team: TrackerTeam, walking?: boolean }): React.MixedElement {
-  const since = sinceText(team);
   return (
     <li className={walking ? 'subway-team subway-team-walking' : 'subway-team'}>
       <span className="subway-team-name">
@@ -79,7 +69,6 @@ function TeamMarker({ team, walking }: { team: TrackerTeam, walking?: boolean })
         </span>
         {team.name || `Team ${team.number}`}
       </span>
-      {since && <span className="subway-team-since">{since}</span>}
     </li>
   );
 }

@@ -36,11 +36,15 @@ import {
 const DEFAULT_RANGE = "Sheet1!A1:Z1000";
 
 // Sheet data is reused for this long, so many viewers refreshing at once
-// share one Sheets API request instead of each making their own.
+// share one Sheets API response instead of each making their own request.
 const SHEET_CACHE_MS = 30 * 1000;
 
+// A Google call that takes longer than this is abandoned, so a slow or stuck
+// one can't keep a visitor waiting forever
+const GOOGLE_TIMEOUT_MS = 10 * 1000;
+
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     // ALLOWED_ORIGIN can be a single origin or a comma-separated list,
     // e.g. "https://sanfranciscohunt.com,http://localhost:3000"
     const allowList = (env.ALLOWED_ORIGIN || "*")
@@ -89,7 +93,7 @@ export default {
     }
 
     try {
-      const data = await getSiteData(env);
+      const data = await getSiteData(env, ctx);
       const photoStream = await signPhotoStream(env, data.photoStream);
       // `values` is kept for frontends deployed before `leaderboard` existed
       return json(
@@ -123,24 +127,52 @@ class SheetsError extends Error {
 
 // Reused across requests within this worker instance (see SHEET_CACHE_MS)
 let cachedSiteData = null; // { at, data }
-let pendingSiteData = null;
 
-async function getSiteData(env) {
+// The fetch in flight, shared so visitors arriving together make one Google
+// request between them (Google allows about 60 Sheets reads a minute). An
+// in-flight fetch belongs to the request that started it, so it's kept alive
+// with waitUntil: otherwise, if that visitor left, Cloudflare would cancel it
+// and everyone waiting on it would hang. Each waiter also gives up after
+// SHARED_WAIT_MS, and a fetch older than that is replaced, as backstops.
+let pendingSiteData = null;
+let pendingStartedAt = 0;
+const SHARED_WAIT_MS = GOOGLE_TIMEOUT_MS * 2 + 5 * 1000;
+
+async function getSiteData(env, ctx) {
   if (cachedSiteData && Date.now() - cachedSiteData.at < SHEET_CACHE_MS) {
     return cachedSiteData.data;
   }
-  // If a fetch is already in flight, share it rather than starting another
-  if (!pendingSiteData) {
-    pendingSiteData = fetchSiteData(env)
+  if (!pendingSiteData || Date.now() - pendingStartedAt > SHARED_WAIT_MS) {
+    const fetching = fetchSiteData(env)
       .then((data) => {
         cachedSiteData = { at: Date.now(), data };
         return data;
       })
       .finally(() => {
-        pendingSiteData = null;
+        if (pendingSiteData === fetching) pendingSiteData = null;
       });
+    pendingSiteData = fetching;
+    pendingStartedAt = Date.now();
+    ctx.waitUntil(fetching.catch(() => {}));
   }
-  return pendingSiteData;
+  try {
+    return await withTimeout(pendingSiteData, SHARED_WAIT_MS);
+  } catch (err) {
+    // Slightly old data beats an error page if Google is having a moment
+    if (cachedSiteData) {
+      console.error("Sheet fetch failed, serving cached data", { message: err?.message });
+      return cachedSiteData.data;
+    }
+    throw err;
+  }
+}
+
+function withTimeout(promise, ms) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`Timed out after ${ms} ms`)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }
 
 async function fetchSiteData(env) {
@@ -264,6 +296,7 @@ async function batchGetRanges(env, accessToken, ranges) {
 
   const sheetRes = await fetch(sheetUrl, {
     headers: { Authorization: `Bearer ${accessToken}` },
+    signal: AbortSignal.timeout(GOOGLE_TIMEOUT_MS),
   });
 
   if (!sheetRes.ok) {
@@ -346,6 +379,7 @@ async function getGoogleAccessToken(env) {
       grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
       assertion: jwt,
     }),
+    signal: AbortSignal.timeout(GOOGLE_TIMEOUT_MS),
   });
 
   if (!tokenRes.ok) {

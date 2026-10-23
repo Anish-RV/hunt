@@ -139,13 +139,17 @@ export default function PasswordGate(): React.MixedElement {
 
   // While unlocked, quietly re-fetch so the tracker and scores stay current.
   // A failed refresh keeps the last data on screen, except a rejected password,
-  // which sends the visitor back to the form.
+  // which sends the visitor back to the form. Hidden pages (a background tab,
+  // a locked phone) skip refreshes, which keeps the worker under Google's rate
+  // limit, and catch up as soon as they're visible again.
   const isUnlocked = rows != null;
   useEffect(() => {
     if (USE_FAKE_DATA || !isUnlocked) {
       return undefined;
     }
-    const interval = setInterval(async () => {
+    let lastRefresh = Date.now();
+    async function refresh() {
+      lastRefresh = Date.now();
       try {
         const res = await fetch(WORKER_URL, {
           method: 'POST',
@@ -160,8 +164,18 @@ export default function PasswordGate(): React.MixedElement {
           showData(await res.json());
         }
       } catch {}
+    }
+    const interval = setInterval(() => {
+      if (!document.hidden) refresh();
     }, REFRESH_MS);
-    return () => clearInterval(interval);
+    function handleVisibility() {
+      if (!document.hidden && Date.now() - lastRefresh >= REFRESH_MS) refresh();
+    }
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, [isUnlocked]);
 
   function handleUnlock(e: { preventDefault(): void, ... }) {

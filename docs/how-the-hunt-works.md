@@ -10,7 +10,7 @@ Context for anyone working on the site or the scoring sheet. The scoring itself 
   - **Zombies:** Clue 3 → 2 → 1 → 4 → final location
 
   Clue 4 leads every team to the final location.
-- At each clue, teams **check in** when they arrive and **check out** when they leave, using that clue's Google Form ("Fall 2026 Scavenger Hunt Clue #1" through "#4"). This tells organizers where every team is. **Clue 4 has no check-out:** teams only check in there, Clue 4's mode is the one chosen at check-in, and the finish form ends Clue 4 (Calculations column AE). Any response that isn't a check-out counts as a check-in, in both the sheet and the tracker.
+- At each clue, teams **check in** when they arrive and **check out** when they leave, using that clue's Google Form ("Fall 2026 Scavenger Hunt Clue #1" through "#4"). This tells organizers where every team is. **Clue 4 has no check-out:** teams only check in there, Clue 4's mode is the one chosen at check-in, and the finish form ends Clue 4 (Calculations column AE). Any response that isn't a check-out counts as a check-in, in both the sheet and the tracker. A stop counts if a team checked in **or** out there (a stop with neither doesn't count). If a team forgets to check out, the sheet uses its next event (a later check-in, or the finish form) as the check-out and its check-in mode as the mode; if it forgets to check in, the sheet uses its previous event (its last submission at another clue, or its wave start) as the check-in. This keeps the stop count, chill penalty, and bonuses right; total time is finish minus start either way.
 - Each form writes to its own responses sheet (e.g. "Fall 2026 Scavenger Hunt Clue #2 (Responses)"); the leaderboard sheet's **Form Data** tab merges all four. Each clue's block in Form Data has the same six columns (timestamp, team name, team number, check-in/out, mode, bonus minutes), matched to the form's questions by name, so the forms can ask their questions in any order. The mode column takes the check-out answer ("…mode did you finish…") and falls back to the check-in answer ("…mode are you participating…"); the bonus column takes the first question with "bonus" in its name. Bonuses by clue (amounts are settings in Calculations):
   - **Clue 1:** "Did you receive a bonus?"; any answer starting with "Y" is worth **30 minutes** (E4).
   - **Clue 3:** "Bonus photo!" upload; any uploaded photo is worth **10 minutes** (E5).
@@ -39,12 +39,12 @@ The site's Tracker tab shows where every team is, computed by the worker (`worke
 | Latest event | Shown as |
 |---|---|
 | None yet | Not shown |
-| Start check-in form (the **Check-In Data** tab) | At the start, with their check-in time |
+| Start check-in form (the **Check-In Data** tab) | At the start |
 | Checked in at a clue | At that clue |
 | Checked out of a clue | On the way to the next clue on their route (or the final location after Clue 4) |
 | Finish form | At the final location |
 
-Stops are labeled **Stop 1–4 in each direction's own order** (so for Zombies, Clue 3 is Stop 1), never by clue number or name, so the tracker doesn't reveal where teams are headed. The Direction column can say Vampire or Vampires (any capitalization), and likewise Zombie or Zombies; teams with anything else aren't shown. A team number in the forms that isn't in the Teams tab is ignored.
+Markers show only the team name, no times. Stops are labeled **Stop 1–4 in each direction's own order** (so for Zombies, Clue 3 is Stop 1), never by clue number or name, so the tracker doesn't reveal where teams are headed. The Direction column can say Vampire or Vampires (any capitalization), and likewise Zombie or Zombies; teams with anything else aren't shown. A team number in the forms that isn't in the Teams tab is ignored.
 
 ## Photo challenge
 
@@ -97,7 +97,7 @@ Before the hunt:
 - [ ] Clue forms: after the Check-In section, each form goes to Submit (mode is now asked at check-in and check-out on all four).
 - [ ] WhatsApp Groups tab (registration sheet): every team has a team #, name, and direction. The Teams tab picks them up automatically.
 - [ ] Clear the test rows from the start check-in form (Check-In Data).
-- [ ] Decide when the photo leader bonus kicks in (Calculations "Photo bonus kicks in"). The Rules tab says the photo challenge winner gets 30 minutes off, without describing the challenge, so teams can't start early.
+- [ ] Decide when the photo leader bonus kicks in, one time for all teams (Calculations E3, date + time; blank means right away). Before then no team is marked as the bird leader; after it, whichever team has the most birds gets the 30 minutes. The Rules tab says the photo challenge winner gets 30 minutes off, without describing the challenge, so teams can't start early.
 - [ ] Sharing: set the photo uploads folder (currently "anyone with the link can edit") and the leaderboard sheet (currently "anyone with the link can view") to Restricted. The service account and organizers keep their own access.
 
 Testing:

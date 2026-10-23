@@ -176,12 +176,6 @@
   font-weight: 600;
 }
 
-.subway-team-since {
-  font-size: 0.68rem;
-  color: #8c8275;
-  font-variant-numeric: tabular-nums;
-}
-
 /* Teams between stops are still on the move */
 .subway-team-walking {
   background: #fffdf7;
