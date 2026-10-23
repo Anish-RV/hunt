@@ -145,6 +145,25 @@ function SubwayLine({
   );
 }
 
+// The direction last picked is remembered in this browser, so a team that
+// switches to its route once lands on it every time it opens the tracker.
+// Storage can be unavailable (e.g. private browsing), so every access is guarded.
+const DIRECTION_STORAGE_KEY = 'hunt-tracker-direction';
+
+function loadSavedDirection(): ?string {
+  try {
+    return localStorage.getItem(DIRECTION_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function saveDirection(direction: string): void {
+  try {
+    localStorage.setItem(DIRECTION_STORAGE_KEY, direction);
+  } catch {}
+}
+
 function formatUpdatedAt(iso: ?string): ?string {
   if (!iso) return null;
   const date = new Date(iso);
@@ -154,7 +173,7 @@ function formatUpdatedAt(iso: ?string): ?string {
 
 export default function Tracker({ tracker, updatedAt }: Props): React.MixedElement {
   const directions = tracker ? Object.keys(tracker.routes) : [];
-  const [selected, setSelected] = useState<?string>(directions[0]);
+  const [selected, setSelected] = useState<?string>(() => loadSavedDirection() ?? directions[0]);
 
   if (!tracker || directions.length === 0) {
     return <p className="tracker-empty">The tracker isn't available right now. Check back soon!</p>;
@@ -174,7 +193,10 @@ export default function Tracker({ tracker, updatedAt }: Props): React.MixedEleme
               type="button"
               aria-pressed={d === direction}
               className={d === direction ? 'tracker-switch-option tracker-switch-active' : 'tracker-switch-option'}
-              onClick={() => setSelected(d)}
+              onClick={() => {
+                setSelected(d);
+                saveDirection(d);
+              }}
             >
               <span aria-hidden="true">{DIRECTION_ICONS[d] ?? '🧭'}</span> {capitalize(d)}
             </button>
