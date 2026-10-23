@@ -52,8 +52,7 @@ export default function About(): React.MixedElement {
       </div>
 
       <p className="about-stats-caption">
-        Grown from 20 participants in year one, with plenty of hijinks, pratfalls, and new
-        friendships made along the way.
+        With plenty of hijinks, pratfalls, and new friendships made along the way...
       </p>
 
       <section className="about-section">

@@ -20,7 +20,7 @@ const SECTIONS: Array<{ title: string, items: Array<React.Node> }> = [
       </>,
       <>
         Your team number sets your direction: <strong>odd numbers are Vampires</strong>,{' '}
-        <strong>even numbers are Zombies</strong>.
+        <strong>even numbers are Zombies</strong>. Check your Whatsapp group title to find your team number.
       </>,
     ],
   },
