@@ -42,8 +42,11 @@ const SECTIONS: Array<{ title: string, items: Array<React.Node> }> = [
     ],
   },
   {
-    title: 'Solving clues',
+    title: 'Ground rules',
     items: [
+      <>
+        <strong>Only walking and public transit.</strong> No cars, rideshares, bikes, or scooters.
+      </>,
       <>
         <strong>No Google or AI to solve clues.</strong> Ask for help if you need it.
       </>,
