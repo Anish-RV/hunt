@@ -32,6 +32,10 @@ const SECTIONS: Array<{ title: string, items: Array<React.Node> }> = [
         using that stop's form.
       </>,
       <>
+        Each stop has two versions: <strong>chill</strong> and <strong>competitive</strong>. Chill
+        is expected to take less time.
+      </>,
+      <>
         Choose chill or competitive when you check in. You can still switch when you check out. The
         mode you choose at check-out is the one that counts.
       </>,
