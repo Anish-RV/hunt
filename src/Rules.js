@@ -42,6 +42,14 @@ const SECTIONS: Array<{ title: string, items: Array<React.Node> }> = [
     ],
   },
   {
+    title: 'Solving clues',
+    items: [
+      <>
+        <strong>No Google or AI to solve clues.</strong> Ask for help if you need it.
+      </>,
+    ],
+  },
+  {
     title: 'Finishing',
     items: [
       <>Your last stop's clue leads you to the final location.</>,
