@@ -46,6 +46,17 @@ const SECTIONS: Array<{ title: string, items: Array<React.Node> }> = [
     ],
   },
   {
+    title: 'Ground rules',
+    items: [
+      <>
+        <strong>Only walking and public transit.</strong> No cars, rideshares, bikes, or scooters.
+      </>,
+      <>
+        <strong>No Google or AI to solve clues.</strong> Ask for help if you need it.
+      </>,
+    ],
+  },
+  {
     title: 'Finishing',
     items: [
       <>Your last stop's clue leads you to the final location.</>,
