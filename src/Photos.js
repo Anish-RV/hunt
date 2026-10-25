@@ -23,6 +23,8 @@ export type StreamPhoto = {
   src: string,
   team: string,
   birds: ?string,
+  // Set by judges on the Photo Review tab; older workers leave it out
+  disqualified?: boolean,
   since: string,
 };
 
@@ -117,7 +119,10 @@ function Feed({ photos }: { photos: ?Array<StreamPhoto> }): React.MixedElement {
         {photos.slice(0, visibleCount).map((photo) => {
           const birds = birdsText(photo.birds);
           return (
-            <li key={photo.src} className="photos-post">
+            <li
+              key={photo.src}
+              className={photo.disqualified ? 'photos-post photos-post-disqualified' : 'photos-post'}
+            >
               <header className="photos-post-header">
                 <span
                   className="photos-avatar"
@@ -135,7 +140,12 @@ function Feed({ photos }: { photos: ?Array<StreamPhoto> }): React.MixedElement {
                 alt={`Photo from ${photo.team}`}
                 loading="lazy"
               />
-              {birds && <p className="photos-birds">🐦 {birds}</p>}
+              {(birds || photo.disqualified) && (
+                <p className="photos-birds">
+                  {birds && <span className="photos-birds-count">🐦 {birds}</span>}
+                  {photo.disqualified && <span className="photos-disqualified">❌ Disqualified</span>}
+                </p>
+              )}
             </li>
           );
         })}

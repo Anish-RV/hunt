@@ -19,6 +19,8 @@
  *                        - the photo challenge standings
  *   PHOTO_DATA_RANGE     - photo submissions, for the photo stream (see photos.js;
  *                          also needs TEAMS_RANGE and the PHOTO_SIGNING_SECRET secret)
+ *   PHOTO_REVIEW_RANGE   - judges' Photo Review tab; photos linked there are
+ *                          marked disqualified in the stream
  *   PHOTO_SIGNING_SECRET - secret that encrypts photo links; set it with
  *                          `openssl rand -hex 32 | npx wrangler secret put PHOTO_SIGNING_SECRET`
  *   ALLOWED_ORIGIN       - your site's origin, for CORS (defaults to "*")
@@ -28,6 +30,7 @@ import { buildTracker } from "./tracker.js";
 import {
   fetchPhotoPreview,
   openPhotoToken,
+  parseDisqualifiedIds,
   parsePhotoStream,
   photoLinkExpiry,
   sealPhotoToken,
@@ -193,6 +196,7 @@ async function fetchSiteData(env) {
     finish: env.FINISH_RANGE,
     photoLeaderboard: env.PHOTO_LEADERBOARD_RANGE,
     photoData: env.PHOTO_DATA_RANGE,
+    photoReview: env.PHOTO_REVIEW_RANGE,
   };
   const keys = Object.keys(optional).filter((key) => optional[key]);
 
@@ -217,7 +221,9 @@ async function fetchSiteData(env) {
         photoLeaderboard: tabs.photoLeaderboard ?? null,
         // File IDs stay server-side; signPhotoStream turns them into links
         photoStream:
-          tabs.photoData && tabs.teams ? parsePhotoStream(tabs.photoData, tabs.teams) : null,
+          tabs.photoData && tabs.teams
+            ? parsePhotoStream(tabs.photoData, tabs.teams, parseDisqualifiedIds(tabs.photoReview))
+            : null,
         updatedAt,
       };
     } catch (err) {

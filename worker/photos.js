@@ -53,12 +53,21 @@ export function parseDriveIds(cell) {
     .map((match) => match[1]);
 }
 
+// Photo Review tab: judges list the photos they disqualify, pasting each one's
+// link from Photo Calc. Any Drive link anywhere on the tab counts, so the
+// columns can be rearranged freely.
+export function parseDisqualifiedIds(reviewRows) {
+  return new Set((reviewRows ?? []).flatMap((row) => row.flatMap(parseDriveIds)));
+}
+
 /**
  * Photo Data tab: one row per form submission, with the team number, the
  * uploaded photos' Drive links, and optionally a bird count and a Hide column
  * judges can mark. Returns the newest photos first, named by the Teams tab.
+ * A submission with any photo in `disqualifiedIds` is flagged as a whole,
+ * since its bird count covers all of its photos.
  */
-export function parsePhotoStream(photoRows, teamsRows) {
+export function parsePhotoStream(photoRows, teamsRows, disqualifiedIds = new Set()) {
   const [headers = [], ...data] = photoRows;
   const timeCol = findColumn(headers, /timestamp/i);
   const numberCol = findColumn(headers, /team\s*(#|number)/i);
@@ -78,6 +87,7 @@ export function parsePhotoStream(photoRows, teamsRows) {
     const number = parseInt(String(row[numberCol] ?? "").trim(), 10);
     const birds = birdsCol >= 0 ? String(row[birdsCol] ?? "").trim() : "";
     const fileIds = parseDriveIds(row[linksCol]);
+    const disqualified = fileIds.some((fileId) => disqualifiedIds.has(fileId));
     fileIds.forEach((fileId, i) => {
       photos.push({
         fileId,
@@ -85,6 +95,7 @@ export function parsePhotoStream(photoRows, teamsRows) {
         // The count is for the whole submission, so it goes only on the photo
         // the feed shows first (the last uploaded), not repeated on each
         birds: birds === "" || i !== fileIds.length - 1 ? null : birds,
+        disqualified,
         since: formatTimeOfDay(time),
         // Keeps photos from one submission in upload order
         sortKey: time * 100 + i,

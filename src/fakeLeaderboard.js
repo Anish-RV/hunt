@@ -158,10 +158,17 @@ function placeholderImage(hue: number, label: string): string {
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
-export const FAKE_PHOTO_STREAM: Array<{ src: string, team: string, birds: ?string, since: string }> =
-  FAKE_TEAMS.slice(0, 12).map((team, i) => ({
-    src: placeholderImage((i * 47) % 360, `🐦 photo ${i + 1}`),
-    team: team.name,
-    birds: i % 4 === 3 ? null : String(randomInt(1, 6)),
-    since: randomTime(),
-  }));
+export const FAKE_PHOTO_STREAM: Array<{
+  src: string,
+  team: string,
+  birds: ?string,
+  disqualified?: boolean,
+  since: string,
+}> = FAKE_TEAMS.slice(0, 12).map((team, i) => ({
+  src: placeholderImage((i * 47) % 360, `🐦 photo ${i + 1}`),
+  team: team.name,
+  // The second photo shows a judge-disqualified count
+  birds: i === 1 ? '10000000' : i % 4 === 3 ? null : String(randomInt(1, 6)),
+  disqualified: i === 1,
+  since: randomTime(),
+}));

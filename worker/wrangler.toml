@@ -11,6 +11,7 @@ FORM_DATA_RANGE = "'Form Data'!A:AZ"
 FINISH_RANGE = "'Finish Data'!A:Z"
 PHOTO_LEADERBOARD_RANGE = "'Photo Leaderboard'!A:Z"
 PHOTO_DATA_RANGE = "'Photo Data'!A:Z"
+PHOTO_REVIEW_RANGE = "'Photo Review'!A:Z"
 
 [observability.logs]
 enabled = true

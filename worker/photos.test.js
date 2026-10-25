@@ -5,6 +5,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   openPhotoToken,
+  parseDisqualifiedIds,
   parseDriveIds,
   parsePhotoStream,
   photoLinkExpiry,
@@ -66,6 +67,23 @@ test('skips photos a judge marked hidden', () => {
     parsePhotoStream(rows, TEAMS).map((p) => p.fileId),
     ['1qbWk1DW1B_Zw']
   );
+});
+
+test('flags every photo of a submission a judge disqualified', () => {
+  // Mirrors the Photo Review tab: notes above a header row, then one row per photo
+  const review = [
+    ['PHOTO REVIEW: throw out bad photos here'],
+    [],
+    ['Team #', 'Birds to remove', 'Reason', 'Photo link'],
+    ['5', '3', 'Fake count', 'https://drive.google.com/open?id=1n0t7lRh5R43X'],
+  ];
+  const stream = parsePhotoStream(PHOTO_DATA, TEAMS, parseDisqualifiedIds(review));
+  assert.deepEqual(
+    stream.filter((p) => p.disqualified).map((p) => p.fileId),
+    ['1FJSMye5gkJLm', '1n0t7lRh5R43X']
+  );
+  assert.equal(parsePhotoStream(PHOTO_DATA, TEAMS).some((p) => p.disqualified), false);
+  assert.equal(parseDisqualifiedIds(undefined).size, 0);
 });
 
 test('photo links round-trip, expire, and reject tampering', async () => {

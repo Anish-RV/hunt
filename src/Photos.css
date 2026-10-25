@@ -82,6 +82,33 @@
   color: #2b2420;
 }
 
+/* A judge threw this photo out: its count is struck through and it's dimmed */
+.photos-post-disqualified .photos-image {
+  filter: grayscale(0.7);
+  opacity: 0.6;
+}
+
+.photos-post-disqualified .photos-birds {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.photos-post-disqualified .photos-birds-count {
+  text-decoration: line-through;
+  color: #8c8275;
+}
+
+.photos-disqualified {
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: #f5e1df;
+  color: #8a3a3a;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
 .photos-more {
   display: flex;
   justify-content: center;
